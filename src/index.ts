@@ -16,12 +16,14 @@
  * Server:
  * - Listens on port 8080. (Firebase Emulator)
  *
- * To start the server, run `firebase emulators:start`. The server will listen
- * on the specified port.
+ * To start the server, run `firebase emulators:start`. 
+ * - Docker - docker run -p 8080:8080 gcr.io/heron-wellnest/hw-authentication-app:1.0
+ * - Local - npm run dev / npm run start
+ * The server will listen on the specified port.
  *
  * @author Arthur M. Artugue
- * @created 2024-03-26
- * @updated 2025-04-02
+ * @created 2025-08-14
+ * @updated 2025-08-14
  */
 import express from 'express';
 import cors from 'cors';
