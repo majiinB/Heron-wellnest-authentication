@@ -14,7 +14,7 @@
  *   from a valid source.
  *
  * Server:
- * - Listens on port 8080. (Firebase Emulator)
+ * - Listens on port 8080.
  *
  * To start the server, run `firebase emulators:start`. 
  * - Docker - docker run -p 8080:8080 gcr.io/heron-wellnest/hw-authentication-app:1.0
