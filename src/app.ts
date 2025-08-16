@@ -33,7 +33,7 @@ app.use(cors());
 app.use(express.json());
 
 // This is a health check route
-app.get('/health', (req, res) => {
+app.get('api/v1/health', (req, res) => {
   res.status(200).json({ status: 'ok' });
 });
 
