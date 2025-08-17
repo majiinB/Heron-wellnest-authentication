@@ -24,12 +24,15 @@
 
 import express from 'express';
 import cors from 'cors';
+import {corsOptions} from './config/cors.js'; 
 import dotenv from 'dotenv';
 
 dotenv.config(); // Load environment variables from .env file
 
 const app = express();
-app.use(cors());
+
+app.use(cors(corsOptions)); // Apply CORS middleware with specified options
+
 app.use(express.json());
 
 // This is a health check route
