@@ -18,13 +18,13 @@
  *
  * @author Arthur M. Artugue
  * @created 2025-08-14
- * @updated 2025-08-16
+ * @updated 2025-08-17
  */
 
 import app from './app.js'
+import { env } from './config/env.config.js';
 
-// Start the server
-const PORT = process.env.PORT || 8080;
+const PORT = env.PORT || 8080;
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);

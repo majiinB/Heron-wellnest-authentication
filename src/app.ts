@@ -19,21 +19,20 @@
  *
  * @author Arthur M. Artugue
  * @created 2025-08-16
- * @updated 2025-08-16
+ * @updated 2025-08-17
  */
 
 import express from 'express';
 import cors from 'cors';
-import {corsOptions} from './config/cors.js'; 
-import dotenv from 'dotenv';
-
-dotenv.config(); // Load environment variables from .env file
+import {corsOptions} from './config/cors.config.js'; 
+import { rateLimitConfig } from './config/rateLimit.config.js';
+import { rateLimit } from 'express-rate-limit';
 
 const app = express();
 
 app.use(cors(corsOptions)); // Apply CORS middleware with specified options
-
-app.use(express.json());
+app.use(rateLimit(rateLimitConfig)); // Apply rate limiting middleware with specified configuration
+app.use(express.json()); // Parse incoming JSON request bodies
 
 // This is a health check route
 app.get('api/v1/health', (req, res) => {
