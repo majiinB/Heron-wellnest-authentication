@@ -18,7 +18,7 @@ dotenv.config();
  *
  * @author Arthur M. Artugue
  * @created 2025-08-17
- * @updated 2025-08-18
+ * @updated 2025-08-19
  */
 export const envSchema = z.object({
   NODE_ENV: z.enum(["development", "production", "test"]).default("development"),
@@ -31,7 +31,7 @@ export const envSchema = z.object({
 const parsed = envSchema.safeParse(process.env);
 
 if (!parsed.success) {
-  console.error("❌ Invalid environment variables:", parsed.error.format());
+  console.error("Invalid environment variables:", parsed.error.format());
   process.exit(1);
 }
 
