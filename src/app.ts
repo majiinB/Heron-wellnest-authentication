@@ -25,8 +25,6 @@
 import express from 'express';
 import cors from 'cors';
 import {corsOptions} from './config/cors.config.js'; 
-import { rateLimitConfig } from './config/rateLimit.config.js';
-import { rateLimit } from 'express-rate-limit';
 import { loggerMiddleware } from './middlewares/logger.middleware.js';
 import { errorMiddleware } from './middlewares/error.middleware.js';
 
@@ -34,7 +32,6 @@ const app : express.Express = express();
 
 // Middlewares
 app.use(cors(corsOptions));
-app.use(rateLimit(rateLimitConfig)); 
 app.use(express.json()); 
 app.use(loggerMiddleware); // Custom logger middleware
 
