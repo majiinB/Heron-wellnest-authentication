@@ -14,7 +14,7 @@ jobs:
       image: node:22
     steps:
       # Setup Node.js
-      - uses: actions/checkout@v3
+      - uses: actions/setup@v3
         with:
           node-version: "22"
 
