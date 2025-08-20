@@ -48,6 +48,12 @@ jobs:
       # Install dependencies (needed for build)
       - run: npm ci
 
+      # Run ESLint
+      - run: npm run lint
+
+      # Run tests
+      - run: npm test
+
       - uses: google-github-actions/auth@v1
         with:
           credentials_json: ${{ secrets.GCP_KEY }}
