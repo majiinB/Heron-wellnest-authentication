@@ -60,13 +60,6 @@ jobs:
       # Build Docker image
       - run: docker build -t ${{env.REGION}}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{env.ARTIFACT_REGISTRY_REPO}}/${{ env.SERVICE_NAME }}:latest .
 
-      # Authenticate with GCP
-      - uses: google-github-actions/setup-gcloud@v2
-        with:
-          project_id: ${{ env.GCP_PROJECT_ID }}
-          service_account_key: ${{ secrets.GCP_KEY }}
-          export_default_credentials: true
-
       # Push Docker image
       - run: docker push ${{ env.REGION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.ARTIFACT_REGISTRY_REPO}}/${{ env.SERVICE_NAME }}:latest
 
