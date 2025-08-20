@@ -18,7 +18,7 @@ dotenv.config();
  *
  * @author Arthur M. Artugue
  * @created 2025-08-17
- * @updated 2025-08-19
+ * @updated 2025-08-20
  */
 export const envSchema = z.object({
   NODE_ENV: z.enum(["development", "production", "test"]).default("development"),
