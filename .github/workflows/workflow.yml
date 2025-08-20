@@ -33,9 +33,10 @@ jobs:
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     env:
-      SERVICE_NAME: hw-authentication-app
+      SERVICE_NAME: hw-authentication-api
       GCP_PROJECT_ID: heron-wellnest
       REGION: asia-southeast1
+      ARTIFACT_REGISTRY_REPO: heron-repo
     steps:
       - uses: actions/checkout@v3
 
@@ -48,7 +49,7 @@ jobs:
       - run: npm ci
 
       # Build Docker image
-      - run: docker build -t gcr.io/${{ env.GCP_PROJECT_ID }}/${{ env.SERVICE_NAME }}:$GITHUB_SHA .
+      - run: docker build -t ${{env.REGION}}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{env.ARTIFACT_REGISTRY_REPO}}/${{ env.SERVICE_NAME }}:latest .
 
       # Authenticate with GCP
       - uses: google-github-actions/setup-gcloud@v2
@@ -58,12 +59,12 @@ jobs:
           export_default_credentials: true
 
       # Push Docker image
-      - run: docker push gcr.io/${{ env.GCP_PROJECT_ID }}/${{ env.SERVICE_NAME }}:$GITHUB_SHA
+      - run: docker push ${{ env.REGION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.ARTIFACT_REGISTRY_REPO}}/${{ env.SERVICE_NAME }}:latest
 
       # Deploy to Cloud Run
       - run: |
           gcloud run deploy ${{ env.SERVICE_NAME }} \
-            --image gcr.io/${{ env.GCP_PROJECT_ID }}/${{ env.SERVICE_NAME }}:$GITHUB_SHA \
+            --image ${{ env.REGION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.ARTIFACT_REGISTRY_REPO}}/${{ env.SERVICE_NAME }}:latest \
             --region ${{ env.REGION }} \
             --platform managed \
             --allow-unauthenticated
