@@ -55,6 +55,9 @@ jobs:
           service_account_key: ${{ secrets.GCP_KEY }}
           export_default_credentials: true
 
+      # Authenticate GCP
+      - run: gcloud auth activate-service-account --key-file=${{ secrets.GCP_KEY }}
+
       - run: gcloud auth configure-docker ${{ env.REGION }}-docker.pkg.dev --quiet
 
       # Build Docker image
