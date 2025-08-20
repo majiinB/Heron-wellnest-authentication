@@ -45,18 +45,18 @@ jobs:
         with:
           node-version: "22"
 
-          # Install dependencies (needed for build)
+      # Install dependencies (needed for build)
       - run: npm ci
 
-      # Authenticate with GCP (must be BEFORE configure-docker and docker push)
+      - uses: google-github-actions/auth@v1
+        with:
+          credentials_json: ${{ secrets.GCP_KEY }}
+
+      # Setup gcloud CLI (optional if you want latest version)
       - uses: google-github-actions/setup-gcloud@v2
         with:
           project_id: ${{ env.GCP_PROJECT_ID }}
-          service_account_key: ${{ secrets.GCP_KEY }}
-          export_default_credentials: true
-
-      # Authenticate GCP
-      - run: gcloud auth activate-service-account --key-file=${{ secrets.GCP_KEY }}
+          version: latest
 
       - run: gcloud auth configure-docker ${{ env.REGION }}-docker.pkg.dev --quiet
 
