@@ -48,6 +48,15 @@ jobs:
           # Install dependencies (needed for build)
       - run: npm ci
 
+      # Authenticate with GCP (must be BEFORE configure-docker and docker push)
+      - uses: google-github-actions/setup-gcloud@v2
+        with:
+          project_id: ${{ env.GCP_PROJECT_ID }}
+          service_account_key: ${{ secrets.GCP_KEY }}
+          export_default_credentials: true
+
+      - run: gcloud auth configure-docker ${{ env.REGION }}-docker.pkg.dev --quiet
+
       # Build Docker image
       - run: docker build -t ${{env.REGION}}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{env.ARTIFACT_REGISTRY_REPO}}/${{ env.SERVICE_NAME }}:latest .
 
