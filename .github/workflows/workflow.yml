@@ -77,5 +77,6 @@ jobs:
           gcloud run deploy ${{ env.SERVICE_NAME }} \
             --image ${{ env.REGION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.ARTIFACT_REGISTRY_REPO}}/${{ env.SERVICE_NAME }}:latest \
             --region ${{ env.REGION }} \
+            --set-env-vars NODE_ENV=production \
             --platform managed \
             --allow-unauthenticated
