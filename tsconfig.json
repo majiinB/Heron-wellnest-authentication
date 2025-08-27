@@ -47,8 +47,9 @@
     "moduleDetection": "force",
     "skipLibCheck": true,
 
-    "esModuleInterop": true
-    
+    "esModuleInterop": true,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true
   },
   "include": ["src/**/*.ts", "src/**/*.mts"],
   "exclude": ["eslint.config.mts"]
