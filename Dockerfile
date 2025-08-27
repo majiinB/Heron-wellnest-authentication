@@ -1,6 +1,6 @@
 # -------- Stage 1: Build --------
 # Use the official Node.js 22 image from Google Cloud Platform
-FROM node:22-slim AS builder
+FROM node:20-slim AS builder
 
 # Create and change to the app directory.
 WORKDIR /app
@@ -19,7 +19,7 @@ COPY . ./
 RUN npm run build
 
 # -------- Stage 2: Production --------
-FROM node:22-slim AS runner
+FROM node:20-slim AS runner
 
 WORKDIR /app
 
