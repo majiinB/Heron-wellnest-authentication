@@ -1,5 +1,7 @@
 import request from "supertest";
 import app from "../app.js";
+import { AppDataSource } from "../config/datasource.config.js";
+import { DataSource } from "typeorm";
 
 /**
  * Authentication API Tests
@@ -26,4 +28,35 @@ describe("Health Check", () => {
   });
 });
 
+let testDataSource: DataSource;
+
+beforeAll(async () => {
+  testDataSource = AppDataSource
+  await testDataSource.initialize();
+});
+
+afterAll(async () => {
+  if (testDataSource.isInitialized) {
+    await testDataSource.destroy();
+  }
+});
+
+describe("Database / DataSource", () => {
+  it("should initialize the data source successfully", () => {
+    expect(testDataSource.isInitialized).toBe(true);
+  });
+
+  it("should fail to initialize with wrong config", async () => {
+    const fakeDataSource = new DataSource({
+      type: "mysql",
+      host: "invalid-host",
+      port: 1234,
+      username: "wrong-user",
+      password: "wrong-pass",
+      database: "nonexistent-db",
+    });
+
+    await expect(fakeDataSource.initialize()).rejects.toThrow();
+  });
+});
 
