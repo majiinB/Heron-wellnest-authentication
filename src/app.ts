@@ -26,7 +26,7 @@ import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import {corsOptions} from './config/cors.config.js'; 
-import {helmetConfig} from './config/helmet.conifg.js';
+import {helmetConfig} from './config/helmet.config.js';
 import { loggerMiddleware } from './middlewares/logger.middleware.js';
 import { errorMiddleware } from './middlewares/error.middleware.js';
 

@@ -21,9 +21,18 @@ dotenv.config();
  * @updated 2025-08-20
  */
 export const envSchema = z.object({
+  // Application environment
   NODE_ENV: z.enum(["development", "production", "test"]).default("development"),
   PORT: z.coerce.number().default(8080),
-  // DATABASE_URL: z.string().url(),
+  
+  // Database configuration
+  DB_HOST : z.string().default("localhost"),
+  DB_PORT : z.coerce.number().default(3306),
+  DB_USER : z.string().min(1, "DB_USER is required").default("root"),
+  DB_PASSWORD : z.string().optional().default(""),
+  DB_NAME : z.string().min(1, "DB_NAME is required").default("heron_wellnest_db"),
+
+  // Security
   // JWT_SECRET: z.string().min(32),
   // CORS_ORIGIN: z.string().url(),
 });

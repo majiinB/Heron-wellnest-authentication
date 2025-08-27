@@ -26,13 +26,4 @@ describe("Health Check", () => {
   });
 });
 
-// describe("Auth Routes", () => {
-//   it("should fail login with wrong credentials", async () => {
-//     const res = await request(app)
-//       .post("/api/v1/auth/login")
-//       .set("origin", "https://production-domain.com")
-//       .send({ email: "wrong@test.com", password: "wrong" });
 
-//     expect(res.statusCode).toBe(401);
-//   });
-// });

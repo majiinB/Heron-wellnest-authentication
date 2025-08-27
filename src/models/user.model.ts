@@ -1,10 +1,10 @@
 import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, TableInheritance, UpdateDateColumn } from "typeorm";
-import type { User as IUser } from "../interface/user.interface.js";
+import type { IUser } from "../interface/user.interface.js";
 
 /**
  * @file user.model.ts
  * 
- * @description Model for Student in the Heron Wellnest Authentication API.
+ * @description `Abstract` base model for `User` in the Heron Wellnest Authentication API.
  * 
  * @author Arthur M. Artugue
  * @created 2025-08-27
@@ -26,9 +26,9 @@ export abstract class User implements IUser {
   is_deleted!: boolean;
 
   @CreateDateColumn()
-  createdAt!: Date;
+  created_at!: Date;
 
   @UpdateDateColumn()
-  updatedAt!: Date;
+  updated_at!: Date;
 
 }

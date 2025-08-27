@@ -18,14 +18,29 @@
  *
  * @author Arthur M. Artugue
  * @created 2025-08-14
- * @updated 2025-08-17
+ * @updated 2025-08-27
  */
 
 import app from './app.js'
+// import { AppDataSource } from './config/datasource.config.js';
 import { env } from './config/env.config.js';
+import { logger } from './utils/logger.util.js';
 
 const PORT = env.PORT || 8080;
 
+// const startDBServer = async () => {
+//   try {
+//     await AppDataSource.initialize();
+//     logger.info("Data Source has been initialized!");
+
+//   } catch (error) {
+//     logger.error("Error during Data Source initialization", error);
+//     process.exit(1);
+//   }
+// };
+
+// startDBServer();
+
 app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
+  logger.info(`Server is running on port ${PORT}`);
 });
