@@ -33,7 +33,7 @@ export const envSchema = z.object({
   DB_NAME : z.string().min(1, "DB_NAME is required").default("heron_wellnest_db"),
 
   // Google OAuth2
-  GOOGLE_CLIENT_ID: z.string().min(1, "GOOGLE_CLIENT_ID is required"),
+  GOOGLE_CLIENT_ID: z.string().min(1, "GOOGLE_CLIENT_ID is required").default('fake-client-id.apps.googleusercontent.com'),
   GOOGLE_EMAIL_DOMAIN: z.string().min(1, "GOOGLE_EMAIL_DOMAIN is required").default("umak.edu.ph"),
   
   // Security
