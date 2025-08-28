@@ -1,4 +1,4 @@
-import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, TableInheritance, UpdateDateColumn } from "typeorm";
+import { Column, CreateDateColumn, Entity, Index, PrimaryGeneratedColumn, TableInheritance, UpdateDateColumn } from "typeorm";
 import type { IUser } from "../interface/user.interface.js";
 
 /**
@@ -19,7 +19,8 @@ export abstract class User implements IUser {
   @Column({type: "varchar", length: 255})
   user_name!: string;
 
-  @Column({type: "varchar", length: 255, unique: true})
+  @Index({unique: true})
+  @Column({type: "varchar", length: 255})
   email!: string;
 
   @Column({ type: "boolean", default: false })

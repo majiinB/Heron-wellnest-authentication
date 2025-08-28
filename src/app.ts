@@ -31,6 +31,7 @@ import { verify } from 'crypto';
 import { verifyGoogleToken } from './utils/googleAuth.utils.js';
 import { googleAuthMiddleware } from './middlewares/googleAuth.middleware.js';
 import type { AuthenticatedRequest } from './interface/authRequest.interface.js';
+import loginRoute from './routes/login.route.js';
 
 const app : express.Express = express();
 
@@ -38,6 +39,8 @@ const app : express.Express = express();
 app.use(cors(corsOptions));
 app.use(express.json()); 
 app.use(loggerMiddleware); // Custom logger middleware
+
+app.use('/api/v1/auth', loginRoute);
 
 // This is a health check route
 app.get('/api/v1/auth/health', (_req, res) => {
@@ -49,7 +52,6 @@ app.get('/dev/v1/test', googleAuthMiddleware, async (_req : AuthenticatedRequest
   res.status(200).json({ status: 'ok', user: _req.user });
 });
   
-
 app.use(errorMiddleware); // Custom error handling middleware
 
 export default app;
