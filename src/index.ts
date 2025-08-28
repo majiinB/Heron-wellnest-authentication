@@ -18,7 +18,7 @@
  *
  * @author Arthur M. Artugue
  * @created 2025-08-14
- * @updated 2025-08-27
+ * @updated 2025-08-28
  */
 
 import app from './app.js'
@@ -29,7 +29,7 @@ import { logger } from './utils/logger.util.js';
 const PORT = env.PORT || 8080;
 
 // @typescript-eslint/no-explicit-function-type
-const startDBServer = async (): Promise<void> => {
+const startServer = async (): Promise<void> => {
   try {
     await AppDataSource.initialize();
     logger.info("Data Source has been initialized!");
@@ -43,4 +43,4 @@ const startDBServer = async (): Promise<void> => {
   }
 };
 
-startDBServer();
+startServer();

@@ -19,7 +19,7 @@
  *
  * @author Arthur M. Artugue
  * @created 2025-08-16
- * @updated 2025-08-17
+ * @updated 2025-08-28
  */
 
 import express from 'express';
@@ -27,6 +27,10 @@ import cors from 'cors';
 import {corsOptions} from './config/cors.config.js'; 
 import { loggerMiddleware } from './middlewares/logger.middleware.js';
 import { errorMiddleware } from './middlewares/error.middleware.js';
+import { verify } from 'crypto';
+import { verifyGoogleToken } from './utils/googleAuth.utils.js';
+import { googleAuthMiddleware } from './middlewares/googleAuth.middleware.js';
+import type { AuthenticatedRequest } from './interface/authRequest.interface.js';
 
 const app : express.Express = express();
 
@@ -39,6 +43,12 @@ app.use(loggerMiddleware); // Custom logger middleware
 app.get('/api/v1/auth/health', (_req, res) => {
   res.status(200).json({ status: 'ok' });
 });
+
+app.get('/dev/v1/test', googleAuthMiddleware, async (_req : AuthenticatedRequest, res) => {
+  // TEST ROUTE - REMOVE IN PRODUCTION
+  res.status(200).json({ status: 'ok', user: _req.user });
+});
+  
 
 app.use(errorMiddleware); // Custom error handling middleware
 
