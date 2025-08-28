@@ -2,6 +2,7 @@ import type { Request, Response, NextFunction } from "express";
 import { AppError } from "../types/appError.type.js";
 import { env } from "../config/env.config.js";
 import { logger } from "../utils/logger.util.js";
+import type { ApiResponse } from "../types/apiResponse.type.js";
 
 /**
  * Error handling middleware for Express applications.
@@ -26,19 +27,40 @@ export function errorMiddleware(
   res: Response,
   _next: NextFunction
 ): void {
-  logger.error("Error occurred", {
-    message: err.message,
-    stack: env.NODE_ENV === "development" ? err.stack : undefined, // Log stack trace only in development
-  });
+  const isAppError = err instanceof AppError;
+  const isOperational = isAppError && err.isOperational;
 
-  // If it's an AppError, use its statusCode, otherwise fallback to 500
-  const statusCode : number = err instanceof AppError ? err.statusCode : 500;
+  // Logging
+  if (isOperational) {
+    logger.warn("Operational error", {
+      message: err.message,
+      code: isAppError ? err.code : undefined,
+    });
+  } else {
+    logger.error("Unexpected error", {
+      message: err.message,
+      stack: env.NODE_ENV === "development" ? err.stack : undefined,
+    });
+  }
 
-  const message : string = err instanceof AppError ? err.message : "Internal Server Error";
+  // Response fields
+  const statusCode: number = isAppError ? err.statusCode : 500;
+  const code: string = isAppError ? err.code : "INTERNAL_SERVER_ERROR";
+  const message: string =
+    isOperational && isAppError
+      ? err.message
+      : "Internal Server Error"; // hide real error if not operational
 
-  res.status(statusCode).json({
+  const response: ApiResponse = {
     success: false,
+    code,
     message,
-    ...(env.NODE_ENV === "development" && { stack: err.stack }),
-  });
+    ...(env.NODE_ENV === "development" && {
+      details: {
+        stack: err.stack,
+      },
+    }),
+  };
+
+  res.status(statusCode).json(response);
 }

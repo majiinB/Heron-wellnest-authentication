@@ -32,6 +32,10 @@ export const envSchema = z.object({
   DB_PASSWORD : z.string().optional().default(""),
   DB_NAME : z.string().min(1, "DB_NAME is required").default("heron_wellnest_db"),
 
+  // Google OAuth2
+  GOOGLE_CLIENT_ID: z.string().min(1, "GOOGLE_CLIENT_ID is required"),
+  GOOGLE_EMAIL_DOMAIN: z.string().min(1, "GOOGLE_EMAIL_DOMAIN is required").default("umak.edu.ph"),
+  
   // Security
   // JWT_SECRET: z.string().min(32),
   // CORS_ORIGIN: z.string().url(),
