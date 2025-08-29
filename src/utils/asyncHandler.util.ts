@@ -9,12 +9,14 @@
  *   // Your async code here
  * }));
  */
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import type {Response, NextFunction} from "express";
+
+import type { Response, NextFunction} from "express";
 import type { AuthenticatedRequest } from "../interface/authRequest.interface.js";
 
 export const asyncHandler = (
   fn: (req: AuthenticatedRequest, res: Response, next: NextFunction) => Promise<void>
-) =>
-  (req: AuthenticatedRequest, res: Response, next: NextFunction) =>
-    Promise.resolve(fn(req, res, next)).catch(next);
+) => {
+  return (req: AuthenticatedRequest, res: Response, next: NextFunction): void => {
+    void fn(req, res, next).catch(next);
+  };
+};

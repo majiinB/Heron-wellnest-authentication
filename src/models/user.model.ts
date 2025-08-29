@@ -1,4 +1,4 @@
-import { Column, CreateDateColumn, Entity, Index, PrimaryGeneratedColumn, TableInheritance, UpdateDateColumn } from "typeorm";
+import { Column, CreateDateColumn, Index, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 import type { IUser } from "../interface/user.interface.js";
 
 /**
@@ -10,8 +10,7 @@ import type { IUser } from "../interface/user.interface.js";
  * @created 2025-08-27
  * @updated 2025-08-27
  */
-@Entity({ name: "users" })
-@TableInheritance({ column: { type: "varchar", name: "role" } })
+
 export abstract class User implements IUser {
   @PrimaryGeneratedColumn("uuid")
   user_id!: string;
@@ -31,5 +30,4 @@ export abstract class User implements IUser {
 
   @UpdateDateColumn()
   updated_at!: Date;
-
 }

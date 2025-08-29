@@ -100,6 +100,7 @@ export async function verifyGoogleToken(token: string) : Promise<TokenPayload> {
     // Preserve original error details for debugging
     if (err instanceof Error) {
       appError.stack = err.stack; // replace stack with original
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (appError as any).originalError = err; // optional, keep full error object
     }
 

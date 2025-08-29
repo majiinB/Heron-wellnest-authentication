@@ -1,4 +1,4 @@
-import { ChildEntity } from "typeorm";
+import { Entity } from "typeorm";
 import { User } from "./user.model.js";
 
 /**
@@ -10,6 +10,6 @@ import { User } from "./user.model.js";
  * @created 2025-08-27
  * @updated 2025-08-27
  */
-@ChildEntity("admin")
+@Entity("admin")
 export class Admin extends User {
 }

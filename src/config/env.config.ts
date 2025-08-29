@@ -18,7 +18,7 @@ dotenv.config();
  *
  * @author Arthur M. Artugue
  * @created 2025-08-17
- * @updated 2025-08-20
+ * @updated 2025-08-29
  */
 export const envSchema = z.object({
   // Application environment
@@ -37,8 +37,40 @@ export const envSchema = z.object({
   GOOGLE_EMAIL_DOMAIN: z.string().min(1, "GOOGLE_EMAIL_DOMAIN is required").default("umak.edu.ph"),
   
   // Security
-  // JWT_SECRET: z.string().min(32),
+  JWT_SECRET: z.string().min(32).optional(), // for HS256
+  JWT_PRIVATE_KEY: z.string().optional(), // for RS256
+  JWT_PUBLIC_KEY: z.string().optional(),  // for RS256
+  JWT_ACCESS_TOKEN_TTL: z.string().default("15m"), // 15 minutes
+  JWT_REFRESH_TOKEN_TTL: z.string().default("7d"), // 7 days
+  JWT_ISSUER: z.string().default("heron-wellnest-auth-api"),
+  JWT_AUDIENCE: z.string().default("heron-wellnest-users"),
+  JWT_ALGORITHM: z.enum(["HS256", "RS256"]).default("HS256"),
   // CORS_ORIGIN: z.string().url(),
+}).superRefine((env, ctx) => {
+  if (env.JWT_ALGORITHM === "HS256" && !env.JWT_SECRET) {
+    ctx.addIssue({
+      path: ["JWT_SECRET"],
+      message: "JWT_SECRET is required when using HS256",
+      code: z.ZodIssueCode.custom,
+    });
+  }
+
+  if (env.JWT_ALGORITHM === "RS256") {
+    if (!env.JWT_PRIVATE_KEY) {
+      ctx.addIssue({
+        path: ["JWT_PRIVATE_KEY_PATH"],
+        message: "JWT_PRIVATE_KEY_PATH is required when using RS256",
+        code: z.ZodIssueCode.custom,
+      });
+    }
+    if (!env.JWT_PUBLIC_KEY) {
+      ctx.addIssue({
+        path: ["JWT_PUBLIC_KEY_PATH"],
+        message: "JWT_PUBLIC_KEY_PATH is required when using RS256",
+        code: z.ZodIssueCode.custom,
+      });
+    }
+  }
 });
 
 const parsed = envSchema.safeParse(process.env);

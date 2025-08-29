@@ -1,4 +1,4 @@
-import { ChildEntity, Column } from "typeorm";
+import { Entity, Column } from "typeorm";
 import { User } from "./user.model.js";
 
 /**
@@ -10,7 +10,7 @@ import { User } from "./user.model.js";
  * @created 2025-08-27
  * @updated 2025-08-27
  */
-@ChildEntity("counselor")
+@Entity("counselor")
 export class Counselor extends User {
 
   @Column({ type: "varchar", length: 255 })

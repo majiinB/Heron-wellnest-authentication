@@ -27,8 +27,6 @@ import cors from 'cors';
 import {corsOptions} from './config/cors.config.js'; 
 import { loggerMiddleware } from './middlewares/logger.middleware.js';
 import { errorMiddleware } from './middlewares/error.middleware.js';
-import { verify } from 'crypto';
-import { verifyGoogleToken } from './utils/googleAuth.utils.js';
 import { googleAuthMiddleware } from './middlewares/googleAuth.middleware.js';
 import type { AuthenticatedRequest } from './interface/authRequest.interface.js';
 import loginRoute from './routes/login.route.js';

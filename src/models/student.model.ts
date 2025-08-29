@@ -1,4 +1,4 @@
-import { ChildEntity, Column } from "typeorm";
+import { Entity, Column } from "typeorm";
 import { User } from "./user.model.js";
 
 /**
@@ -10,13 +10,13 @@ import { User } from "./user.model.js";
  * @created 2025-08-27
  * @updated 2025-08-27
  */
-@ChildEntity("student")
+@Entity("students")
 export class Student extends User {
-  @Column({ type: "int" })
-  year_level!: number;
+  @Column({ type: "int", nullable: true })
+  year_level!: number | null;
 
-  @Column({ type: "varchar", length: 255 })
-  college_department!: string;
+  @Column({ type: "varchar", length: 255, nullable: true })
+  college_department!: string | null;
 
   @Column({ type: "boolean", default: false })
   finished_onboarding!: boolean;
