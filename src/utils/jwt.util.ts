@@ -6,6 +6,7 @@ import type { JwtConfig } from '../types/jwtConfig.type.js';
 import type { AccessTokenClaims } from '../types/accessTokenClaim.type.js';
 import { decodeJwt, jwtVerify, SignJWT, type JWTPayload } from 'jose';
 import { AppError } from '../types/appError.type.js';
+import { JOSEAlgNotAllowed, JWSSignatureVerificationFailed, JWTClaimValidationFailed, JWTExpired, JWTInvalid } from 'jose/errors';
 
 const cfg: JwtConfig = {
   alg: env.JWT_ALGORITHM,
@@ -101,14 +102,83 @@ export async function signRefreshToken(sub: string): Promise<string> {
  * 
  * @throws {jose.JWTVerificationError} If token verification fails
  * */
-export async function verifyToken<T extends JWTPayload = JWTPayload>(token: string): Promise<T> {
-  const { payload } = await jwtVerify<T>(token, verifyingKey, {
-    algorithms: [alg],
-    issuer: cfg.issuer,
-    audience: cfg.audience,
-    clockTolerance: "2s", // small leeway for clock skew
-  });
-  return payload;
+export async function verifyToken(token: string): Promise<AccessTokenClaims> {
+  try {
+    const { payload } = await jwtVerify<AccessTokenClaims>(token, verifyingKey, {
+      algorithms: [alg],
+      issuer: cfg.issuer,
+      audience: cfg.audience,
+      clockTolerance: "2s", // small leeway for clock skew
+    });
+    return payload;
+  } catch (err) {
+    if (err instanceof AppError) {
+      throw err
+    }
+    
+    const message = (err as Error).message || "Unknown error";
+
+    if (err instanceof JWTExpired) {
+      throw new AppError(
+        401,
+        "AUTH_TOKEN_EXPIRED",
+        "Token expired. Please login again.",
+        true
+      );
+    }
+
+    if (err instanceof JWSSignatureVerificationFailed){
+      throw new AppError(
+        401,
+        "AUTH_TOKEN_INVALID_SIGNATURE",
+        "Invalid token signature.",
+        true
+      );
+    }
+
+    if (err instanceof JWTClaimValidationFailed){
+      throw new AppError(
+        403,
+        "AUTH_TOKEN_INVALID_CLAIM",
+        "Invalid token claim.",
+        true
+      );
+    }
+
+    if (err instanceof JWTInvalid){
+      throw new AppError(
+        401,
+        "AUTH_TOKEN_INVALID_CLAIM",
+        "Invalid token claim.",
+        true
+      );
+    }
+
+    if (err instanceof JOSEAlgNotAllowed){
+      throw new AppError(
+        401,
+        "AUTH_TOKEN_INVALID",
+        "Invalid token. Token may be of different source.",
+        true
+      );
+    }
+
+    const appError = new AppError(
+      500, 
+      "AUTH_TOKEN_VERIFICATION_FAILED", 
+      `Failed to verify token: ${message}`, 
+      false
+    );
+
+    // Preserve original error details for debugging
+    if (err instanceof Error) {
+      appError.stack = err.stack; // replace stack with original
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (appError as any).originalError = err; // optional, keep full error object
+    }
+
+    throw appError;
+  }
 }
 
 /**

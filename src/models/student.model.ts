@@ -12,9 +12,6 @@ import { User } from "./user.model.js";
  */
 @Entity("students")
 export class Student extends User {
-  @Column({ type: "int", nullable: true })
-  year_level!: number | null;
-
   @Column({ type: "varchar", length: 255, nullable: true })
   college_department!: string | null;
 

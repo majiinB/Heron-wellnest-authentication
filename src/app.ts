@@ -30,6 +30,7 @@ import { errorMiddleware } from './middlewares/error.middleware.js';
 import { googleAuthMiddleware } from './middlewares/googleAuth.middleware.js';
 import type { AuthenticatedRequest } from './interface/authRequest.interface.js';
 import loginRoute from './routes/login.route.js';
+import boardingRoute from './routes/onBoarding.route.js'
 
 const app : express.Express = express();
 
@@ -39,6 +40,7 @@ app.use(express.json());
 app.use(loggerMiddleware); // Custom logger middleware
 
 app.use('/api/v1/auth', loginRoute);
+app.use('/api/v1/auth', boardingRoute);
 
 // This is a health check route
 app.get('/api/v1/auth/health', (_req, res) => {

@@ -6,9 +6,9 @@
  * 
  * @author Arthur M. Artugue
  * @created 2025-08-28
- * @updated 2025-08-28
+ * @updated 2025-09-02
  */
-export type ApiResponse<T = unknown> ={
+export type ApiResponse<T = unknown> = {
   success: boolean;
   code: string;       
   message: string;    

@@ -31,6 +31,7 @@ export async function googleAuthMiddleware(req: AuthenticatedRequest, res: Respo
 
     // Attach user info to request object
     req.user = {
+      sub: payload.sub!,
       email: payload.email!,
       name: payload.name!,
       picture: payload.picture,

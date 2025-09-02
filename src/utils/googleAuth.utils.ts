@@ -90,10 +90,21 @@ export async function verifyGoogleToken(token: string) : Promise<TokenPayload> {
       throw err;
     }
 
+    const message = (err as Error).message || "Unknown error";
+
+    if (message.includes("Token used too late") || message.includes("Token used too early")) {
+      throw new AppError(
+        401,
+        "AUTH_TOKEN_TIME_ERROR",
+        "Google token rejected due to time mismatch. Please check your device or server clock.",
+        true
+      );
+    }
+
     const appError = new AppError(
       500, 
       "AUTH_TOKEN_VERIFICATION_FAILED", 
-      "Failed to verify Google token", 
+      `Failed to verify Google token: ${message}`, 
       false
     );
 

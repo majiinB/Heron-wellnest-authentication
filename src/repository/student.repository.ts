@@ -13,6 +13,11 @@ export class StudentRepository {
     return this.repo.save(user);
   }
 
+  async update(user_id: string, fields: Partial<Student>): Promise<void> {
+    await this.repo.update(user_id, fields);
+  }
+
+
   async findById(user_id: string): Promise<Student | null> {
     return this.repo.findOne({ where: { user_id } });
   }
