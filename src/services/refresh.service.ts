@@ -56,7 +56,7 @@ export class RefreshTokenService {
     const student: Student | null = storedToken.student;
     if(!student){
       await this.studentRefreshTokenRepo.delete(storedToken);
-      
+
       throw new AppError(
         404, 
         "USER_NOT_FOUND", 
@@ -75,9 +75,11 @@ export class RefreshTokenService {
       college_department: student.college_department ?? null,
     }
 
+    // Generate tokens
     const newAccessToken = await signAccessToken(payload);
     const newRefreshToken = await signRefreshToken(student.user_id);
 
+    // Start a transaction
     await AppDataSource.manager.transaction(async (manager) => {
       // Replace old refresh token
       await this.studentRefreshTokenRepo.delete(storedToken, manager);
@@ -106,9 +108,6 @@ export class RefreshTokenService {
         is_onboarded: student.finished_onboarding,
       }
     }
-
     return response;
-
   }
-
 }

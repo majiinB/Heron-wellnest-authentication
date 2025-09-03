@@ -23,7 +23,8 @@ export class StudentRefreshTokenRepository {
        where: { 
         token: token,
         student: {user_id : userID}
-      } 
+      },
+      relations: ["student"]
     });
   }
 
