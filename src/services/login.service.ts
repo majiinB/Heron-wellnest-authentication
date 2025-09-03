@@ -1,5 +1,9 @@
+import ms from "ms"
+import { env } from "../config/env.config.js";
 import { Student } from "../models/student.model.js";
+import { StudentRefreshToken } from "../models/studentRefreshToken.model.js";
 import type { StudentRepository } from "../repository/student.repository.js";
+import type { StudentRefreshTokenRepository } from "../repository/studentRefreshToken.repository.js";
 import type { AccessTokenClaims } from "../types/accessTokenClaim.type.js";
 import type { ApiResponse } from "../types/apiResponse.type.js";
 import { signAccessToken, signRefreshToken } from "../utils/jwt.util.js";
@@ -13,13 +17,15 @@ import { signAccessToken, signRefreshToken } from "../utils/jwt.util.js";
  * 
  * @author Arthur M. Artugue
  * @created 2025-09-02
- * @updated 2025-09-02
+ * @updated 2025-09-04
  */
 export class LoginService {
   private userRepository: StudentRepository;
+  private studentRefreshTokenRepository: StudentRefreshTokenRepository
 
-  constructor(userRepository: StudentRepository) {
+  constructor(userRepository: StudentRepository, studentRefreshTokenRepository: StudentRefreshTokenRepository) {
     this.userRepository = userRepository;
+    this.studentRefreshTokenRepository = studentRefreshTokenRepository;
   }
 
   public async studentLogin(googleUser: Student) : Promise<ApiResponse> {
@@ -37,6 +43,13 @@ export class LoginService {
       user = await this.userRepository.save(newUser);
     }
 
+    // Check if a refresh token under the same user id exists
+    const existingRefreshToken : StudentRefreshToken | null = await this.studentRefreshTokenRepository.findByUserID(user.user_id);
+    if(existingRefreshToken){
+      // Delete if refresh token under the user exists
+      await this.studentRefreshTokenRepository.delete(existingRefreshToken);
+    }
+
     // User exists or has been created, generate tokens
     const payload: AccessTokenClaims = {
       sub: user.user_id,
@@ -48,8 +61,18 @@ export class LoginService {
     }
 
     // Generate JWT tokens
-    const accessToken = await signAccessToken(payload);
-    const refreshToken = await signRefreshToken(user.user_id);
+    const accessToken: string = await signAccessToken(payload);
+    const refreshToken: string = await signRefreshToken(user.user_id);
+
+    // Save refresh token to database
+    const ttlString: ms.StringValue = env.JWT_REFRESH_TOKEN_TTL as ms.StringValue || "7d"; 
+    const ttlMs = ms(ttlString);
+    const expiresAt = new Date(Date.now() + ttlMs);
+    const studentRT: StudentRefreshToken = new StudentRefreshToken(); 
+    studentRT.student = user;
+    studentRT.token = refreshToken;
+    studentRT.expires_at = expiresAt
+    await this.studentRefreshTokenRepository.save(studentRT);
 
     // Prepare response
     const response: ApiResponse = {

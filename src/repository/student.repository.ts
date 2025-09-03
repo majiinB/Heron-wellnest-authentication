@@ -2,6 +2,19 @@ import { AppDataSource } from "../config/datasource.config.js";
 import { Student } from "../models/student.model.js";
 import type { User } from "../models/user.model.js";
 
+/**
+ * Student Repository
+ * 
+ * @description Repository class for managing student entities.
+ * Provides methods to query, save, update, and delete student records
+ * in the database using TypeORM.
+ * 
+ * @file student.repository.ts
+ * 
+ * @author Arthur M. Artugue
+ * @created 2025-09-02
+ * @updated 2025-09-04
+ */
 export class StudentRepository {
   private repo = AppDataSource.getRepository(Student);
 

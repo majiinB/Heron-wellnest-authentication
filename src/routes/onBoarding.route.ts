@@ -4,10 +4,12 @@ import { OnBoardingService } from "../services/onBoarding.service.js";
 import { OnBordingController } from "../controllers/onBoarding.controller.js";
 import { heronAuthMiddleware } from "../middlewares/heronAuth.middleware..js";
 import { asyncHandler } from "../utils/asyncHandler.util.js";
+import { StudentRefreshTokenRepository } from "../repository/studentRefreshToken.repository.js";
 
 const router = express.Router();
-const studentRepository : StudentRepository  = new StudentRepository();
-const onBoardingService = new OnBoardingService(studentRepository);
+const studentRepository : StudentRepository = new StudentRepository();
+const studentRefreshTokenRepository : StudentRefreshTokenRepository = new StudentRefreshTokenRepository();
+const onBoardingService = new OnBoardingService(studentRepository, studentRefreshTokenRepository);
 const onBoardingController = new OnBordingController(onBoardingService);
 
 /**
@@ -29,7 +31,7 @@ const onBoardingController = new OnBordingController(onBoardingService);
  * 
  * @author Arthur M. Artugue
  * @created 2025-09-02
- * @updated 2025-09-02
+ * @updated 2025-09-04
  */
 router.post("/student/board", heronAuthMiddleware, asyncHandler(onBoardingController.handleStudentBoarding.bind(onBoardingController)));
 

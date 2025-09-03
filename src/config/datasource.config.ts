@@ -1,5 +1,6 @@
 import { Admin } from "../models/admin.model.js";
 import { Counselor } from "../models/counselor.model.js";
+import { StudentRefreshToken } from "../models/studentRefreshToken.model.js";
 import { Student } from "../models/student.model.js";
 import { env } from "./env.config.js";
 import { DataSource } from "typeorm";
@@ -28,6 +29,6 @@ export const AppDataSource = new DataSource({
   username: env.DB_USER,
   password: env.DB_PASSWORD,
   database: env.DB_NAME,
-  entities: [ Student, Counselor, Admin],
+  entities: [ Student, Counselor, Admin, StudentRefreshToken],
   synchronize: true,  
 })

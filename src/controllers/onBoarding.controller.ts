@@ -3,6 +3,19 @@ import type { AuthenticatedRequest } from "../interface/authRequest.interface.js
 import type { OnBoardingService } from "../services/onBoarding.service.js";
 import { AppError } from "../types/appError.type.js";
 
+/**
+ * OnBoarding Controller
+ * 
+ * @description Controller responsible for handling the student onboarding process.
+ * It validates JWT claims and request body parameters, then delegates the
+ * onboarding logic to the OnBoardingService to complete the student's profile.
+ * 
+ * @file onBoarding.controller.ts
+ * 
+ * @author Arthur M. Artugue
+ * @created 2025-09-02
+ * @updated 2025-09-04
+ */
 export class OnBordingController {
   private onBoardingService : OnBoardingService;
 

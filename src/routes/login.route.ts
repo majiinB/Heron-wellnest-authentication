@@ -4,10 +4,12 @@ import { StudentRepository } from "../repository/student.repository.js";
 import { LoginService } from "../services/login.service.js";
 import { LoginController } from "../controllers/login.controller.js";
 import { googleAuthMiddleware } from "../middlewares/googleAuth.middleware.js";
+import { StudentRefreshTokenRepository } from "../repository/studentRefreshToken.repository.js";
 
 const router = express.Router();
 const studentRepository = new  StudentRepository();
-const loginService = new LoginService(studentRepository);
+const studentRefreshTokenRepository = new StudentRefreshTokenRepository();
+const loginService = new LoginService(studentRepository, studentRefreshTokenRepository);
 const loginController = new LoginController(loginService);
 
 /**
@@ -29,7 +31,7 @@ const loginController = new LoginController(loginService);
  * 
  * @author Arthur M. Artugue
  * @created 2025-09-02
- * @updated 2025-09-02
+ * @updated 2025-09-04
  */
  router.post("/student/login", googleAuthMiddleware, asyncHandler(loginController.handleStudentLogin.bind(loginController)));
 
