@@ -23,7 +23,7 @@ import { DataSource } from "typeorm";
  * @updated 2025-08-27
  */
 export const AppDataSource = new DataSource({
-  type: "mysql",
+  type: "postgres",
   host: env.DB_HOST,
   port: env.DB_PORT,
   username: env.DB_USER,

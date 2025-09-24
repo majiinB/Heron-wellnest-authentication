@@ -25,9 +25,9 @@ export abstract class User implements IUser {
   @Column({ type: "boolean", default: false })
   is_deleted!: boolean;
 
-  @CreateDateColumn()
+  @CreateDateColumn({type: "timestamptz"})
   created_at!: Date;
 
-  @UpdateDateColumn()
+  @UpdateDateColumn({type: "timestamptz"})
   updated_at!: Date;
 }
