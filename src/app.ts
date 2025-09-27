@@ -23,6 +23,8 @@
  */
 
 import express from 'express';
+import swaggerUi from 'swagger-ui-express';
+import swaggerJsdoc from 'swagger-jsdoc';
 import cors from 'cors';
 import {corsOptions} from './config/cors.config.js'; 
 import { loggerMiddleware } from './middlewares/logger.middleware.js';
@@ -33,13 +35,49 @@ import loginRoute from './routes/login.route.js';
 import boardingRoute from './routes/onBoarding.route.js'
 import refreshRoute from './routes/refresh.route.js'
 import logoutRoute from './routes/logout.route.js'
+import { env } from './config/env.config.js';
 
 const app : express.Express = express();
+
+// --- Swagger options ---
+const swaggerOptions = {
+  definition: {
+    openapi: '3.0.0',
+    info: {
+      title: 'Heron Wellnest Authentication API',
+      version: '1.0.0',
+      description: "Heron Wellnest Authentication API provides secure endpoints for managing user authentication and authorization within the platform. It supports user registration, login, token-based authentication (JWT), role-based access control, and secure session management. This API ensures the protection of sensitive student information through encryption, while enabling seamless integration with other Wellnest modules/services."
+    },
+    servers: [
+      {
+        url: `http://localhost:${env.PORT}/api/v1/auth`,
+      },
+    ],
+    components: {
+      securitySchemes: {
+        bearerAuth: {
+          type: 'http',
+          scheme: 'bearer',
+          bearerFormat: 'JWT',
+        },
+      },
+    },
+    security: [
+      {
+        bearerAuth: [],
+      },
+    ],
+  },
+  apis: ['./src/routes/**/*.ts'], // 👈 path to your route files with @openapi JSDoc comments
+};
+
+const swaggerSpec = swaggerJsdoc(swaggerOptions);
 
 // Middlewares
 app.use(cors(corsOptions));
 app.use(express.json()); 
 app.use(loggerMiddleware); // Custom logger middleware
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 // Routes
 app.use('/api/v1/auth', loginRoute);
