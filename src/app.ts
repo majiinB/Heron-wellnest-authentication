@@ -36,8 +36,10 @@ import boardingRoute from './routes/onBoarding.route.js'
 import refreshRoute from './routes/refresh.route.js'
 import logoutRoute from './routes/logout.route.js'
 import { env } from './config/env.config.js';
+import fs from 'fs';
 
 const app : express.Express = express();
+const isTS = fs.existsSync('./src/routes');
 
 // --- Swagger options ---
 const swaggerOptions = {
@@ -68,7 +70,7 @@ const swaggerOptions = {
       },
     ],
   },
-  apis: ['./src/routes/**/*.ts'], // 👈 path to your route files with @openapi JSDoc comments
+  apis: [isTS ? './src/routes/**/*.ts' : './dist/routes/**/*.{js,ts}'], // 👈 path to your route files with @openapi JSDoc comments
 };
 
 const swaggerSpec = swaggerJsdoc(swaggerOptions);
