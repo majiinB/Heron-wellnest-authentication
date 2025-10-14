@@ -15,11 +15,11 @@ export abstract class User implements IUser {
   @PrimaryGeneratedColumn("uuid")
   user_id!: string;
 
-  @Column({type: "varchar", length: 255})
+  @Column({type: "varchar", length: 255, nullable: false})
   user_name!: string;
 
   @Index({unique: true})
-  @Column({type: "varchar", length: 255})
+  @Column({type: "varchar", length: 255, nullable: false})
   email!: string;
 
   @Column({ type: "boolean", default: false })
