@@ -1,7 +1,6 @@
 import { Entity, Column, OneToOne, JoinColumn } from "typeorm";
 import { User } from "./user.model.js";
 import { CollegeProgram } from "./collegeProgram.model.js";
-import { join } from "path";
 
 /**
  * @file student.model.ts
