@@ -1,5 +1,6 @@
-import { Entity, Column } from "typeorm";
+import { Entity, Column, OneToOne } from "typeorm";
 import { User } from "./user.model.js";
+import { CollegeDepartment } from "./collegeDepartment.model.js";
 
 /**
  * @file counselor.model.ts
@@ -12,7 +13,9 @@ import { User } from "./user.model.js";
  */
 @Entity("counselor")
 export class Counselor extends User {
-
   @Column({ type: "varchar", length: 255 })
-  college_department!: string;
+  password!: string;
+
+  @OneToOne(() => CollegeDepartment, { nullable: true })
+  college_department!: CollegeDepartment | null;
 }
