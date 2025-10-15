@@ -4,6 +4,10 @@ import { StudentRefreshToken } from "../models/studentRefreshToken.model.js";
 import { Student } from "../models/student.model.js";
 import { env } from "./env.config.js";
 import { DataSource } from "typeorm";
+import { AdminRefreshToken } from "../models/adminRefreshToken.model.js";
+import { CounselorRefreshToken } from "../models/counselorRefreshToken.model.js";
+import { CollegeDepartment } from "../models/collegeDepartment.model.js";
+import { CollegeProgram } from "../models/collegeProgram.model.js";
 
 /**
  * Data source configuration for TypeORM.
@@ -29,6 +33,6 @@ export const AppDataSource = new DataSource({
   username: env.DB_USER,
   password: env.DB_PASSWORD,
   database: env.DB_NAME,
-  entities: [ Student, Counselor, Admin, StudentRefreshToken],
+  entities: [ Student, Counselor, Admin, StudentRefreshToken, AdminRefreshToken, CounselorRefreshToken, CollegeDepartment, CollegeProgram],
   synchronize: true,  
 })
