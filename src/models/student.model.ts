@@ -1,5 +1,6 @@
-import { Entity, Column } from "typeorm";
+import { Entity, Column, OneToOne } from "typeorm";
 import { User } from "./user.model.js";
+import { CollegeProgram } from "./collegeProgram.model.js";
 
 /**
  * @file student.model.ts
@@ -12,8 +13,8 @@ import { User } from "./user.model.js";
  */
 @Entity("students")
 export class Student extends User {
-  @Column({ type: "varchar", length: 255, nullable: true })
-  college_department!: string | null;
+  @OneToOne(() => CollegeProgram, { nullable: true })
+  college_program!: CollegeProgram | null;
 
   @Column({ type: "boolean", default: false })
   finished_onboarding!: boolean;
