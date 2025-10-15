@@ -1,6 +1,7 @@
-import { Entity, Column, OneToOne } from "typeorm";
+import { Entity, Column, OneToOne, JoinColumn } from "typeorm";
 import { User } from "./user.model.js";
 import { CollegeProgram } from "./collegeProgram.model.js";
+import { join } from "path";
 
 /**
  * @file student.model.ts
@@ -14,6 +15,7 @@ import { CollegeProgram } from "./collegeProgram.model.js";
 @Entity("students")
 export class Student extends User {
   @OneToOne(() => CollegeProgram, { nullable: true })
+  @JoinColumn({ name: "program_id" })
   college_program!: CollegeProgram | null;
 
   @Column({ type: "boolean", default: false })

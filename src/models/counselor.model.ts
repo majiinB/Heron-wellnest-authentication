@@ -1,4 +1,4 @@
-import { Entity, Column, OneToOne } from "typeorm";
+import { Entity, Column, OneToOne, JoinColumn } from "typeorm";
 import { User } from "./user.model.js";
 import { CollegeDepartment } from "./collegeDepartment.model.js";
 
@@ -17,5 +17,6 @@ export class Counselor extends User {
   password!: string;
 
   @OneToOne(() => CollegeDepartment, { nullable: true })
+  @JoinColumn({ name: "department_id" })
   college_department!: CollegeDepartment | null;
 }
