@@ -1,4 +1,4 @@
-import { Entity, Column, OneToOne, JoinColumn } from "typeorm";
+import { Entity, Column, JoinColumn, ManyToOne } from "typeorm";
 import { User } from "./user.model.js";
 import { CollegeProgram } from "./collegeProgram.model.js";
 
@@ -9,11 +9,11 @@ import { CollegeProgram } from "./collegeProgram.model.js";
  * 
  * @author Arthur M. Artugue
  * @created 2025-08-27
- * @updated 2025-08-27
+ * @updated 2025-10-16
  */
-@Entity("students")
+@Entity("student")
 export class Student extends User {
-  @OneToOne(() => CollegeProgram, { nullable: true })
+  @ManyToOne(() => CollegeProgram,{ onDelete: 'CASCADE', nullable: true })
   @JoinColumn({ name: "program_id" })
   college_program!: CollegeProgram | null;
 

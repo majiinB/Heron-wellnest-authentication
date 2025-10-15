@@ -33,6 +33,8 @@ export const AppDataSource = new DataSource({
   username: env.DB_USER,
   password: env.DB_PASSWORD,
   database: env.DB_NAME,
-  entities: [ Student, Counselor, Admin, StudentRefreshToken, AdminRefreshToken, CounselorRefreshToken, CollegeDepartment, CollegeProgram],
-  synchronize: true,  
+  entities: [ CollegeDepartment, CollegeProgram, Student, Counselor, Admin, StudentRefreshToken, AdminRefreshToken, CounselorRefreshToken], 
+  synchronize: env.NODE_ENV === "development", // Use with caution in production
+  logging: env.NODE_ENV === "development",
+  migrations: ["src/migrations/*.ts"],
 })

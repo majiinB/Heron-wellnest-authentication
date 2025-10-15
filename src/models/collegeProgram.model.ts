@@ -1,4 +1,4 @@
-import { Column, CreateDateColumn, Entity, JoinColumn, OneToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 import { CollegeDepartment } from "./collegeDepartment.model.js";
 
 
@@ -10,9 +10,9 @@ export class CollegeProgram {
   @Column({ type: "varchar", length: 255 , nullable: false})
   program_name!: string;
 
-  @OneToOne(()=> CollegeDepartment, {onDelete: "CASCADE"})
-  @JoinColumn({name: "department_id"})
-  college_department!: CollegeDepartment
+  @ManyToOne(()=> CollegeDepartment, { onDelete: 'CASCADE', nullable: true })
+  @JoinColumn()
+  college_department!: CollegeDepartment | null
 
   @Column({type: "boolean", default: false})
   is_deleted!: boolean
