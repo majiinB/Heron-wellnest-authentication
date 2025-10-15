@@ -7,10 +7,10 @@ import { googleAuthMiddleware } from "../middlewares/googleAuth.middleware.js";
 import { StudentRefreshTokenRepository } from "../repository/studentRefreshToken.repository.js";
 
 const router = express.Router();
-const studentRepository = new  StudentRepository();
-const studentRefreshTokenRepository = new StudentRefreshTokenRepository();
-const loginService = new LoginService(studentRepository, studentRefreshTokenRepository);
-const loginController = new LoginController(loginService);
+// const studentRepository = new  StudentRepository();
+// const studentRefreshTokenRepository = new StudentRefreshTokenRepository();
+// const loginService = new LoginService(studentRepository, studentRefreshTokenRepository);
+// const loginController = new LoginController(loginService);
 
  /**
  * @openapi
@@ -166,6 +166,6 @@ const loginController = new LoginController(loginService);
  *                   code: INTERNAL_SERVER_ERROR
  *                   message: Internal server error
  */
- router.post("/student/login", googleAuthMiddleware, asyncHandler(loginController.handleStudentLogin.bind(loginController)));
+//  router.post("/student/login", googleAuthMiddleware, asyncHandler(loginController.handleStudentLogin.bind(loginController)));
 
 export default router;

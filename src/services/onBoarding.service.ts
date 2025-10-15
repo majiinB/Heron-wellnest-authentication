@@ -30,7 +30,7 @@ export class OnBoardingService {
     this.studentRefreshTokenRepository = studentRefreshTokenRepository;
   }
 
-  public async completeStudentInfo(studentID : string, collegeDepartment: string): Promise<ApiResponse>{
+  public async completeStudentInfo(studentID : string, collegeProgram: string): Promise<ApiResponse>{
     const user : Student | null = await this.studentRepository.findById(studentID);
     let response : ApiResponse;
 
@@ -50,11 +50,14 @@ export class OnBoardingService {
       }
     }
     
-    await this.studentRepository.update(studentID, {
-      college_department: collegeDepartment,
-      finished_onboarding: true,
-      updated_at: new Date(),
-    });
+    // TODO: Validate if the provided college program exists in the CollegeProgram table
+    // If valid, proceed to update the student's college program and mark onboarding as finished
+    // user.college_program = collegeProgram;
+    // await this.studentRepository.update(studentID, {
+    //   college_program: collegeProgram,
+    //   finished_onboarding: true,
+    //   updated_at: new Date(),
+    // });
 
     // Check if a refresh token under the same user id exists
     const existingRefreshToken : StudentRefreshToken | null = await this.studentRefreshTokenRepository.findByUserID(user.user_id);
@@ -69,7 +72,7 @@ export class OnBoardingService {
       email: user.email,
       name: user.user_name,
       is_onboarded: true,
-      college_department: collegeDepartment,
+      college_program: collegeProgram,
     }
 
     // Generate JWT tokens

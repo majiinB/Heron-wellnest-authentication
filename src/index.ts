@@ -20,7 +20,7 @@
  * @created 2025-08-14
  * @updated 2025-08-28
  */
-
+import 'reflect-metadata';
 import app from './app.js'
 import { AppDataSource } from './config/datasource.config.js';
 import { env } from './config/env.config.js';

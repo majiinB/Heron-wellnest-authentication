@@ -37,7 +37,7 @@ export class LoginService {
       const newUser: Student = new Student();
       newUser.email = googleUser.email;
       newUser.user_name = googleUser.user_name;
-      newUser.college_department = null;
+      newUser.college_program = null;
       newUser.finished_onboarding = false;
 
       user = await this.userRepository.save(newUser);
@@ -57,7 +57,7 @@ export class LoginService {
       email: user.email,
       name: user.user_name,
       is_onboarded: user.finished_onboarding,
-      college_department: user.college_department ?? null,
+      college_program: user.college_program ?? null,
     }
 
     // Generate JWT tokens

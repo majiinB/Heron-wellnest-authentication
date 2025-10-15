@@ -65,6 +65,7 @@ export class RefreshTokenService {
       );
     }
     
+    // TODO: Provide college program and department in the payload
     // User exists, generate tokens
     const payload: AccessTokenClaims = {
       sub: student.user_id,
@@ -72,7 +73,7 @@ export class RefreshTokenService {
       email: student.email,
       name: student.user_name,
       is_onboarded: student.finished_onboarding,
-      college_department: student.college_department ?? null,
+      college_program: student.college_program ?? null,
     }
 
     // Generate tokens

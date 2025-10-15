@@ -35,6 +35,6 @@ export const AppDataSource = new DataSource({
   database: env.DB_NAME,
   entities: [ CollegeDepartment, CollegeProgram, Student, Counselor, Admin, StudentRefreshToken, AdminRefreshToken, CounselorRefreshToken], 
   synchronize: env.NODE_ENV === "development", // Use with caution in production
-  logging: env.NODE_ENV === "development",
   migrations: ["src/migrations/*.ts"],
+  logging: ["query", "error"],
 })

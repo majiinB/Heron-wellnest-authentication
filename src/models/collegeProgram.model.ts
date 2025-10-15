@@ -11,8 +11,8 @@ export class CollegeProgram {
   program_name!: string;
 
   @ManyToOne(()=> CollegeDepartment, { onDelete: 'CASCADE', nullable: true })
-  @JoinColumn()
-  college_department!: CollegeDepartment | null
+  @JoinColumn({ name: "college_department_id" })
+  college_department_id!: CollegeDepartment | null
 
   @Column({type: "boolean", default: false})
   is_deleted!: boolean
