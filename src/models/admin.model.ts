@@ -1,4 +1,4 @@
-import { Entity } from "typeorm";
+import { Column, Entity } from "typeorm";
 import { User } from "./user.model.js";
 
 /**
@@ -12,4 +12,9 @@ import { User } from "./user.model.js";
  */
 @Entity("admin")
 export class Admin extends User {
+  @Column({ type: "varchar", length: 255 })
+  password!: string;
+
+  @Column({ type: "boolean", default: false })
+  is_super_admin!: boolean;
 }
