@@ -31,8 +31,8 @@ import { loggerMiddleware } from './middlewares/logger.middleware.js';
 import { errorMiddleware } from './middlewares/error.middleware.js';
 import { googleAuthMiddleware } from './middlewares/googleAuth.middleware.js';
 import type { AuthenticatedRequest } from './interface/authRequest.interface.js';
-import loginRoute from './routes/login.route.js';
-import boardingRoute from './routes/onBoarding.route.js'
+// import loginRoute from './routes/login.route.js';
+// import boardingRoute from './routes/onBoarding.route.js'
 import refreshRoute from './routes/refresh.route.js'
 import logoutRoute from './routes/logout.route.js'
 import { env } from './config/env.config.js';
@@ -82,10 +82,10 @@ app.use(loggerMiddleware); // Custom logger middleware
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 // Routes
-app.use('/api/v1/auth', loginRoute);
-app.use('/api/v1/auth', boardingRoute);
-app.use('/api/v1/auth', refreshRoute);
-app.use('/api/v1/auth', logoutRoute);
+// app.use('/api/v1/auth', loginRoute);
+// app.use('/api/v1/auth', boardingRoute);
+// app.use('/api/v1/auth', refreshRoute);
+// app.use('/api/v1/auth', logoutRoute);
 
 // This is a health check route
 app.get('/api/v1/auth/health', (_req, res) => {

@@ -25,7 +25,7 @@ export class OnBordingController {
 
   public async handleStudentBoarding(req: AuthenticatedRequest, res: Response, _next: NextFunction): Promise<void> {
     const {sub, email, name} = req.user ?? {}
-    const { college_department } = req.body ?? {}
+    const { college_program } = req.body ?? {}
 
     if (!email || !name || !sub) {
       throw new AppError(
@@ -36,16 +36,16 @@ export class OnBordingController {
       ) // Stop execution if missing
     }
 
-    if (!college_department){
+    if (!college_program){
       throw new AppError(
         400,
         "BODY_PARAM_MISSING",
-        "The param college_department is required",
+        "The param college_program is required",
         true
       )
     }
 
-    const response = await this.onBoardingService.completeStudentInfo(sub, college_department);
+    const response = await this.onBoardingService.completeStudentInfo(sub, college_program);
     res.status(200).json(response);
   }
 }

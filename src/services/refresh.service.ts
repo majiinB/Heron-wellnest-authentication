@@ -73,7 +73,8 @@ export class RefreshTokenService {
       email: student.email,
       name: student.user_name,
       is_onboarded: student.finished_onboarding,
-      college_program: student.college_program ?? null,
+      college_program: student.college_program?.program_name ?? null,
+      college_department: student.college_program?.college_department_id?.department_name ?? null,
     }
 
     // Generate tokens

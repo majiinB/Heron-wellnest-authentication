@@ -5,11 +5,15 @@ import { LoginService } from "../services/login.service.js";
 import { LoginController } from "../controllers/login.controller.js";
 import { googleAuthMiddleware } from "../middlewares/googleAuth.middleware.js";
 import { StudentRefreshTokenRepository } from "../repository/studentRefreshToken.repository.js";
+import { AdminRepository } from "../repository/admin.repository.js";
+import { AdminRefreshTokenRepository } from "../repository/adminRefreshToken.repository.js";
 
 const router = express.Router();
 const studentRepository = new  StudentRepository();
 const studentRefreshTokenRepository = new StudentRefreshTokenRepository();
-const loginService = new LoginService(studentRepository, studentRefreshTokenRepository);
+const adminRepository = new AdminRepository();
+const adminRefreshTokenRepository = new AdminRefreshTokenRepository();
+const loginService = new LoginService(studentRepository, adminRepository, studentRefreshTokenRepository, adminRefreshTokenRepository);
 const loginController = new LoginController(loginService);
 
  /**

@@ -9,13 +9,14 @@ import type { JWTPayload } from "jose";
  * 
  * @author Arthur M. Artugue
  * @created 2025-09-29
- * @updated 2025-09-29
+ * @updated 2025-10-17
  */
 export type AccessTokenClaims = {
   sub: string;           // user id
   role: string;         // "student" | "admin | "counselor"
   email: string;
   name: string;
-  year_level?: number; // optional, for students
-  department?: string; // optional, for staff and students
+  is_onboarded?: boolean;
+  college_program?: string | null; // optional, for students
+  college_department?: string | null; // optional, for staff and students
 } & JWTPayload;

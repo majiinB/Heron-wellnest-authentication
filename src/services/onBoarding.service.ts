@@ -5,8 +5,11 @@ import type { AccessTokenClaims } from "../types/accessTokenClaim.type.js";
 import { signAccessToken, signRefreshToken } from "../utils/jwt.util.js";
 import type { StudentRefreshTokenRepository } from "../repository/studentRefreshToken.repository.js";
 import { StudentRefreshToken } from "../models/studentRefreshToken.model.js";
+import { CollegeProgramRepository } from "../repository/collegeProgram.repository.js";
 import ms from "ms";
 import { env } from "../config/env.config.js";
+import type { CollegeProgram } from "../models/collegeProgram.model.js";
+import { AppError } from "../types/appError.type.js";
 
 /**
  * OnBoarding Service
@@ -23,11 +26,13 @@ import { env } from "../config/env.config.js";
  */
 export class OnBoardingService {
   private studentRepository: StudentRepository;
+  private collegeProgramRepository: CollegeProgramRepository;
   private studentRefreshTokenRepository : StudentRefreshTokenRepository;
 
-  constructor(studentRepository : StudentRepository, studentRefreshTokenRepository: StudentRefreshTokenRepository){
+  constructor(studentRepository : StudentRepository, studentRefreshTokenRepository: StudentRefreshTokenRepository, collegeProgramRepository: CollegeProgramRepository){
     this.studentRepository = studentRepository;
     this.studentRefreshTokenRepository = studentRefreshTokenRepository;
+    this.collegeProgramRepository = collegeProgramRepository;
   }
 
   public async completeStudentInfo(studentID : string, collegeProgram: string): Promise<ApiResponse>{
@@ -35,29 +40,42 @@ export class OnBoardingService {
     let response : ApiResponse;
 
     if(!user){
-      return response = {
-        success: false,
-        code: "USER_TO_BE_ONBOARDED_NOT_FOUND",
-        message: `User with ID: ${studentID}  was not found`
-      }
+      throw new AppError(
+        404,
+        "USER_TO_BE_ONBOARDED_NOT_FOUND",
+        `User with ID: ${studentID}  was not found`,
+        true
+      )
     }
 
     if(user.finished_onboarding){
-      return response = {
-        success: false,
-        code: "USER_ALREADY_ONBOARDED",
-        message: `User ${user.user_name}  is already onboarded.`
-      }
+      throw new AppError(
+        400,
+        "USER_ALREADY_ONBOARDED",
+        `User ${user.user_name}  is already onboarded.`,
+        true
+      )
     }
     
-    // TODO: Validate if the provided college program exists in the CollegeProgram table
+    // Validate if the provided college program exists in the CollegeProgram table
+    const cleanProgramName = collegeProgram.trim();
+    const collegeProgramEntity : CollegeProgram | null = await this.collegeProgramRepository.findByProgramName(cleanProgramName);
+    if(!collegeProgramEntity){
+      throw new AppError(
+        404,
+        "COLLEGE_PROGRAM_NOT_FOUND",
+        `College program ${collegeProgram} was not found`,
+        true
+      )
+    }
+
     // If valid, proceed to update the student's college program and mark onboarding as finished
-    // user.college_program = collegeProgram;
-    // await this.studentRepository.update(studentID, {
-    //   college_program: collegeProgram,
-    //   finished_onboarding: true,
-    //   updated_at: new Date(),
-    // });
+    user.college_program = collegeProgramEntity;
+    await this.studentRepository.update(studentID, {
+      college_program: collegeProgramEntity,
+      finished_onboarding: true,
+      updated_at: new Date(),
+    });
 
     // Check if a refresh token under the same user id exists
     const existingRefreshToken : StudentRefreshToken | null = await this.studentRefreshTokenRepository.findByUserID(user.user_id);
@@ -72,7 +90,8 @@ export class OnBoardingService {
       email: user.email,
       name: user.user_name,
       is_onboarded: true,
-      college_program: collegeProgram,
+      college_program: collegeProgramEntity.program_name,
+      college_department: collegeProgramEntity.college_department_id?.department_name ?? null,
     }
 
     // Generate JWT tokens

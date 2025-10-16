@@ -5,11 +5,13 @@ import { OnBordingController } from "../controllers/onBoarding.controller.js";
 import { heronAuthMiddleware } from "../middlewares/heronAuth.middleware..js";
 import { asyncHandler } from "../utils/asyncHandler.util.js";
 import { StudentRefreshTokenRepository } from "../repository/studentRefreshToken.repository.js";
+import { CollegeProgramRepository } from "../repository/collegeProgram.repository.js";
 
 const router = express.Router();
 const studentRepository : StudentRepository = new StudentRepository();
+const collegeProgramRepository = new CollegeProgramRepository();
 const studentRefreshTokenRepository : StudentRefreshTokenRepository = new StudentRefreshTokenRepository();
-const onBoardingService = new OnBoardingService(studentRepository, studentRefreshTokenRepository);
+const onBoardingService = new OnBoardingService(studentRepository, studentRefreshTokenRepository, collegeProgramRepository);
 const onBoardingController = new OnBordingController(onBoardingService);
 
 /**
@@ -48,15 +50,15 @@ const onBoardingController = new OnBordingController(onBoardingService);
  *       - bearerAuth: []
  *     requestBody:
  *       required: true
- *       description: The department information required to complete onboarding.
+ *       description: The college program information required to complete onboarding.
  *       content:
  *         application/json:
  *           schema:
  *             type: object
  *             required:
- *               - college_department
+ *               - college_program
  *             properties:
- *               college_department:
+ *               college_program:
  *                 type: string
  *                 example: Computer Science
  *     responses:

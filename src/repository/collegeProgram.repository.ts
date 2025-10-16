@@ -19,7 +19,10 @@ export class CollegeProgramRepository {
   private repo = AppDataSource.getRepository(CollegeProgram);
 
   async findByProgramName(programName: string): Promise<CollegeProgram | null> {
-    return this.repo.findOne({ where: { program_name: programName } });
+    return this.repo.findOne({ 
+      where: { program_name: programName },
+      relations: ["college_department_id"] // Ensure department relation is loaded
+     });
   }
 
   async save(program: CollegeProgram): Promise<CollegeProgram> {
