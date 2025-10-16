@@ -2,8 +2,8 @@ import ms from "ms"
 import { env } from "../config/env.config.js";
 import { Student } from "../models/student.model.js";
 import { StudentRefreshToken } from "../models/studentRefreshToken.model.js";
-import type { StudentRepository } from "../repository/student.repository.js";
-import type { StudentRefreshTokenRepository } from "../repository/studentRefreshToken.repository.js";
+import { StudentRepository } from "../repository/student.repository.js";
+import { StudentRefreshTokenRepository } from "../repository/studentRefreshToken.repository.js";
 import type { AccessTokenClaims } from "../types/accessTokenClaim.type.js";
 import type { ApiResponse } from "../types/apiResponse.type.js";
 import { signAccessToken, signRefreshToken } from "../utils/jwt.util.js";
@@ -13,6 +13,10 @@ import { AppError } from "../types/appError.type.js";
 import { comparePassword } from "../utils/crypt.util.js";
 import { AdminRefreshToken } from "../models/adminRefreshToken.model.js";
 import { AdminRefreshTokenRepository } from "../repository/adminRefreshToken.repository.js";
+import { Counselor } from "../models/counselor.model.js";
+import { CounselorRepository } from "../repository/counselor.repository.js";
+import { CounselorRefreshTokenRepository } from "../repository/counselorRefreshToken.model.js";
+import { CounselorRefreshToken } from "../models/counselorRefreshToken.model.js";
 
 /**
  * Login Service
@@ -28,14 +32,25 @@ import { AdminRefreshTokenRepository } from "../repository/adminRefreshToken.rep
 export class LoginService {
   private userRepository: StudentRepository;
   private adminRepository: AdminRepository;
+  private counselorRepository: CounselorRepository;
   private studentRefreshTokenRepository: StudentRefreshTokenRepository;
   private adminRefreshTokenRepository: AdminRefreshTokenRepository;
+  private counselorRefreshTokenRepository: CounselorRefreshTokenRepository;
 
-  constructor(userRepository: StudentRepository, adminRepository: AdminRepository, studentRefreshTokenRepository: StudentRefreshTokenRepository, adminRefreshTokenRepository: AdminRefreshTokenRepository) {
+  constructor(
+    userRepository: StudentRepository, 
+    adminRepository: AdminRepository, 
+    counselorRepository: CounselorRepository, 
+    studentRefreshTokenRepository: StudentRefreshTokenRepository, 
+    adminRefreshTokenRepository: AdminRefreshTokenRepository, 
+    counselorRefreshTokenRepository: CounselorRefreshTokenRepository
+  ) {
     this.userRepository = userRepository;
     this.adminRepository = adminRepository;
+    this.counselorRepository = counselorRepository;
     this.studentRefreshTokenRepository = studentRefreshTokenRepository;
     this.adminRefreshTokenRepository = adminRefreshTokenRepository;
+    this.counselorRefreshTokenRepository = counselorRefreshTokenRepository;
   }
 
   public async studentLogin(googleUser: Student) : Promise<ApiResponse> {
@@ -96,6 +111,73 @@ export class LoginService {
         access_token: accessToken,
         refresh_token: refreshToken,
         is_onboarded: user.finished_onboarding,
+      }
+    }
+
+    return response;
+  }
+
+  public async counselorLogin(counselor: Counselor) : Promise<ApiResponse> {
+    const user: Counselor | null = await this.counselorRepository.findByEmail(counselor.email);
+
+    if(!user){
+      throw new AppError(
+        401,
+        "INVALID_CREDENTIALS",
+        "Credentials provided are incorrect",
+        true
+      )
+    }
+
+    // Validate password
+    const isValidPassword = await comparePassword(counselor.password, user.password);
+    if (!isValidPassword) {
+      throw new AppError(
+        401,
+        "INVALID_CREDENTIALS",
+        "Credentials provided are incorrect",
+        true
+      );
+    }
+
+    // Check if a refresh token under the same user id exists
+    const existingRefreshToken : CounselorRefreshToken | null = await this.counselorRefreshTokenRepository.findByUserID(user.user_id);
+    if(existingRefreshToken){
+      // Delete if refresh token under the user exists
+      await this.counselorRefreshTokenRepository.delete(existingRefreshToken);
+    }
+
+    // User exists, generate tokens
+    const payload: AccessTokenClaims = {
+      sub: user.user_id,
+      role: 'counselor',
+      email: user.email,
+      name: user.user_name,
+      college_department: user.college_department?.department_name ?? null,
+    }
+
+    // Generate JWT tokens
+    const accessToken: string = await signAccessToken(payload);
+    const refreshToken: string = await signRefreshToken(user.user_id);
+
+    // Save refresh token to database
+    const ttlString: ms.StringValue = env.JWT_REFRESH_TOKEN_TTL as ms.StringValue || "7d"; 
+    const ttlMs = ms(ttlString);
+    const expiresAt = new Date(Date.now() + ttlMs);
+    const counselorRT: CounselorRefreshToken = new CounselorRefreshToken(); 
+    counselorRT.counselor = user;
+    counselorRT.token = refreshToken;
+    counselorRT.expires_at = expiresAt
+    await this.counselorRefreshTokenRepository.save(counselorRT);
+
+    // Prepare response
+    const response: ApiResponse = {
+      success: true,
+      code: "LOGIN_SUCCESS",
+      message: "Counselor login successful",
+      data: {
+        access_token: accessToken,
+        refresh_token: refreshToken,
       }
     }
 
