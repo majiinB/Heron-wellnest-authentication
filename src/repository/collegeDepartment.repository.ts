@@ -1,6 +1,5 @@
 import { AppDataSource } from "../config/datasource.config.js";
 import { CollegeDepartment } from "../models/collegeDepartment.model.js";
-import type { User } from "../models/user.model.js";
 
 /**
  * College Department Repository
