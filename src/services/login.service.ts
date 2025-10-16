@@ -57,7 +57,8 @@ export class LoginService {
       email: user.email,
       name: user.user_name,
       is_onboarded: user.finished_onboarding,
-      college_program: user.college_program ?? null,
+      college_program: user.college_program?.program_name ?? null,
+      college_department: user.college_program?.college_department_id?.department_name ?? null,
     }
 
     // Generate JWT tokens
