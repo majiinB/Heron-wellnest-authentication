@@ -316,7 +316,7 @@ router.post("/student/login", googleAuthMiddleware, asyncHandler(loginController
  *                   code: INTERNAL_SERVER_ERROR
  *                   message: Internal server error
  */
-router.post("/admin/login", googleAuthMiddleware, asyncHandler(loginController.handleAdminLogin.bind(loginController)));
+router.post("/admin/login", asyncHandler(loginController.handleAdminLogin.bind(loginController)));
 
 /**
  * @openapi
@@ -458,6 +458,6 @@ router.post("/admin/login", googleAuthMiddleware, asyncHandler(loginController.h
  *                   code: INTERNAL_SERVER_ERROR
  *                   message: Internal server error
  */
-router.post("/counselor/login", googleAuthMiddleware, asyncHandler(loginController.handleCounselorLogin.bind(loginController)));
+router.post("/counselor/login", asyncHandler(loginController.handleCounselorLogin.bind(loginController)));
 
 export default router;

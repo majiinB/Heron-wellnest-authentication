@@ -190,18 +190,20 @@ export class LoginService {
     if(!user){
       throw new AppError(
         401,
-        "INVALID_CREDENTIALS",
+        "INVALID_CREDENTIALS1",
         "Credentials provided are incorrect",
         true
       )
     }
 
     // Validate password
+    console.log('Plain password:', admin.password);
+    console.log('Hashed from DB:', user.password);
     const isValidPassword = await comparePassword(admin.password, user.password);
     if (!isValidPassword) {
       throw new AppError(
         401,
-        "INVALID_CREDENTIALS",
+        "INVALID_CREDENTIALS2",
         "Credentials provided are incorrect",
         true
       );

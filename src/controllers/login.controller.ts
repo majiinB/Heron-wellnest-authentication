@@ -47,9 +47,9 @@ export class LoginController {
   }
 
   public async handleAdminLogin(req: AuthenticatedRequest, res: Response, _next: NextFunction): Promise<void> {
-    const { admin_email, admin_name } = req.body ?? {};
+    const { admin_email, admin_password } = req.body ?? {};
 
-    if (!admin_email || !admin_name) {
+    if (!admin_email || !admin_password) {
       throw new AppError(
         400,
         "MISSING_ADMIN_CREDENTIALS",
@@ -60,16 +60,16 @@ export class LoginController {
 
     const admin = new Admin();
     admin.email = admin_email;
-    admin.user_name = admin_name;
+    admin.password = admin_password;
 
     const response = await this.loginService.adminLogin(admin);
     res.status(200).json(response);
   }
 
   public async handleCounselorLogin(req: AuthenticatedRequest, res: Response, _next: NextFunction): Promise<void> {
-    const { counselor_email, counselor_name } = req.body ?? {};
+    const { counselor_email, counselor_password } = req.body ?? {};
 
-    if (!counselor_email || !counselor_name) {
+    if (!counselor_email || !counselor_password) {
       throw new AppError(
         400,
         "MISSING_ADMIN_CREDENTIALS",
@@ -80,7 +80,7 @@ export class LoginController {
 
     const counselor = new Counselor();
     counselor.email = counselor_email;
-    counselor.user_name = counselor_email;
+    counselor.password = counselor_password;
 
     const response = await this.loginService.counselorLogin(counselor);
     res.status(200).json(response);
