@@ -60,7 +60,7 @@ const onBoardingController = new OnBordingController(onBoardingService);
  *             properties:
  *               college_program:
  *                 type: string
- *                 example: Computer Science
+ *                 example: Bachelor of Science in Computer Science (Application Development Elective Track)
  *     responses:
  *       "200":
  *         description: Onboarding successful

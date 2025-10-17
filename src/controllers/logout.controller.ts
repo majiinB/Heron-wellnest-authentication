@@ -23,4 +23,36 @@ export class LogoutController {
     const response = await this.logoutService.studentlogout(refresh_token);
     res.status(200).json(response);
   }
+
+  public async handleCounselorLogout(req: Request, res: Response, _next: NextFunction): Promise<void> {
+    const { refresh_token } = req.body;
+
+    if (!refresh_token) {
+      res.status(400).json({
+        success: false,
+        code: "MISSING_REFRESH_TOKEN",
+        message: "Refresh token is required to logout.",
+      });
+      return;
+    }
+
+    const response = await this.logoutService.counselorLogout(refresh_token);
+    res.status(200).json(response);
+  }
+
+  public async handleAdminLogout(req: Request, res: Response, _next: NextFunction): Promise<void> {
+    const { refresh_token } = req.body;
+
+    if (!refresh_token) {
+      res.status(400).json({
+        success: false,
+        code: "MISSING_REFRESH_TOKEN",
+        message: "Refresh token is required to logout.",
+      });
+      return;
+    }
+
+    const response = await this.logoutService.adminLogout(refresh_token);
+    res.status(200).json(response);
+  }
 }

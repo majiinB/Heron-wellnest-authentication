@@ -196,7 +196,7 @@ router.post("/student/login", googleAuthMiddleware, asyncHandler(loginController
  
 /**
  * @openapi
- * /student/admin:
+ * /admin/login:
  *   post:
  *     summary: Admin login using personal credentials (email, password)
  *     description: |
@@ -338,7 +338,7 @@ router.post("/admin/login", asyncHandler(loginController.handleAdminLogin.bind(l
  
 /**
  * @openapi
- * /student/counselor:
+ * /counselor/login:
  *   post:
  *     summary: Counselor login using personal credentials (email, password)
  *     description: |
