@@ -34,9 +34,11 @@ export const AppDataSource = new DataSource({
   password: env.DB_PASSWORD,
   database: env.DB_NAME,
   entities: [ CollegeDepartment, CollegeProgram, Student, Counselor, Admin, StudentRefreshToken, AdminRefreshToken, CounselorRefreshToken], 
-  // ssl: env.NODE_ENV === "production" ? { rejectUnauthorized: true } : {
-  //   rejectUnauthorized: false,
-  // },
+  ...(env.NODE_ENV === "production" && {
+    ssl: {
+      rejectUnauthorized: false,
+    },
+  }),
   synchronize: env.NODE_ENV === "development", // Use with caution in production
   // migrations: ["src/migrations/*.ts"],
   logging: ["query", "error"],
