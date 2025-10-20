@@ -19,7 +19,7 @@ export class StudentRepository {
   private repo = AppDataSource.getRepository(Student);
 
   async findByEmail(email: string): Promise<Student | null> {
-    return this.repo.findOne({ where: { email } });
+    return this.repo.findOne({ where: { email }, relations: ['college_program'] });
   }
 
   async save(user: User): Promise<Student> {
