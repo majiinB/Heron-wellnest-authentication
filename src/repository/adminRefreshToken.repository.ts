@@ -44,6 +44,27 @@ export class AdminRefreshTokenRepository {
     return this.repo.save(token);
   }
 
+  async upsert(userID: string, token: string, expiresAt: Date, manager?: EntityManager): Promise<void> {
+    const repo = manager ? manager.getRepository(AdminRefreshToken) : this.repo;
+    
+    await repo.upsert(
+      {
+        admin: { user_id: userID },
+        token: token,
+        expires_at: expiresAt
+      },
+      {
+        conflictPaths: ['admin'], // matches your unique constraint
+        skipUpdateIfNoValuesChanged: false
+      }
+    );
+  }
+
+  async deleteByUserID(userID: string, manager?: EntityManager): Promise<void> {
+    const repo = manager ? manager.getRepository(AdminRefreshToken) : this.repo;
+    await repo.delete({ admin: { user_id: userID } });
+  }
+
   async delete(token: AdminRefreshToken, manager?: EntityManager): Promise<void> {
     if (manager) {
       await manager.remove(AdminRefreshToken, token);

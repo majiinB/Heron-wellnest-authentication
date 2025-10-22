@@ -7,6 +7,7 @@ export class StudentRefreshToken {
   @PrimaryGeneratedColumn("uuid")
   token_id!: string 
 
+  @Index({unique: true})
   @ManyToOne(()=> Student, {onDelete: "CASCADE"})
   @JoinColumn({name: "user_id"})
   student!: Student

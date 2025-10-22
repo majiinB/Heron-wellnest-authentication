@@ -43,6 +43,27 @@ export class StudentRefreshTokenRepository {
     return this.repo.save(token);
   }
 
+  async upsert(userID: string, token: string, expiresAt: Date, manager?: EntityManager): Promise<void> {
+    const repo = manager ? manager.getRepository(StudentRefreshToken) : this.repo;
+    
+    await repo.upsert(
+      {
+        student: { user_id: userID },
+        token: token,
+        expires_at: expiresAt
+      },
+      {
+        conflictPaths: ['student'], // matches your unique constraint
+        skipUpdateIfNoValuesChanged: false
+      }
+    );
+  }
+
+  async deleteByUserID(userID: string, manager?: EntityManager): Promise<void> {
+    const repo = manager ? manager.getRepository(StudentRefreshToken) : this.repo;
+    await repo.delete({ student: { user_id: userID } });
+  }
+
   async delete(token: StudentRefreshToken, manager?: EntityManager): Promise<void> {
     if (manager) {
       await manager.remove(StudentRefreshToken, token);

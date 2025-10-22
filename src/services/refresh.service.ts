@@ -108,7 +108,6 @@ export class RefreshTokenService {
       );
     }
     
-    // TODO: Provide college program and department in the payload
     // User exists, generate tokens
     const payload: AccessTokenClaims = {
       sub: student.user_id,
@@ -123,23 +122,14 @@ export class RefreshTokenService {
     // Generate tokens
     const newAccessToken = await signAccessToken(payload);
     const newRefreshToken = await signRefreshToken(student.user_id);
-
-    // Start a transaction
-    await AppDataSource.manager.transaction(async (manager) => {
-      // Replace old refresh token
-      await this.studentRefreshTokenRepo.delete(storedToken, manager);
-
-      // Save new refresh token
-      const ttlString: ms.StringValue = env.JWT_REFRESH_TOKEN_TTL as ms.StringValue || "7d"; 
-      const ttlMs = ms(ttlString);
-      const expiresAt = new Date(Date.now() + ttlMs);
-      const studentRT: StudentRefreshToken = new StudentRefreshToken(); 
-      studentRT.student = student;
-      studentRT.token = newRefreshToken;
-      studentRT.expires_at = expiresAt
-      await this.studentRefreshTokenRepo.save(studentRT, manager);
-    });
     
+    // Upsert new refresh token
+    const ttlString: ms.StringValue = env.JWT_REFRESH_TOKEN_TTL as ms.StringValue || "7d"; 
+    const ttlMs = ms(ttlString);
+    const expiresAt = new Date(Date.now() + ttlMs);
+    
+    await this.studentRefreshTokenRepo.upsert(student.user_id, newRefreshToken, expiresAt);
+   
     // Prepare response
     const response: ApiResponse = {
       success: true,
@@ -219,22 +209,13 @@ export class RefreshTokenService {
     const newAccessToken = await signAccessToken(payload);
     const newRefreshToken = await signRefreshToken(admin.user_id);
 
-    // Start a transaction
-    await AppDataSource.manager.transaction(async (manager) => {
-      // Replace old refresh token
-      await this.adminRefreshTokenRepo.delete(storedToken, manager);
-
-      // Save new refresh token
-      const ttlString: ms.StringValue = env.JWT_REFRESH_TOKEN_TTL as ms.StringValue || "7d"; 
-      const ttlMs = ms(ttlString);
-      const expiresAt = new Date(Date.now() + ttlMs);
-      const adminRT: AdminRefreshToken = new AdminRefreshToken(); 
-      adminRT.admin = admin;
-      adminRT.token = newRefreshToken;
-      adminRT.expires_at = expiresAt
-      await this.adminRefreshTokenRepo.save(adminRT, manager);
-    });
+    // Save new refresh token
+    const ttlString: ms.StringValue = env.JWT_REFRESH_TOKEN_TTL as ms.StringValue || "7d"; 
+    const ttlMs = ms(ttlString);
+    const expiresAt = new Date(Date.now() + ttlMs);
     
+    await this.adminRefreshTokenRepo.upsert(admin.user_id, newRefreshToken, expiresAt);
+   
     // Prepare response
     const response: ApiResponse = {
       success: true,
@@ -317,22 +298,13 @@ export class RefreshTokenService {
     // Generate tokens
     const newAccessToken = await signAccessToken(payload);
     const newRefreshToken = await signRefreshToken(counselor.user_id);
-
-    // Start a transaction
-    await AppDataSource.manager.transaction(async (manager) => {
-      // Replace old refresh token
-      await this.counselorRefreshTokenRepo.delete(storedToken, manager);
-
-      // Save new refresh token
-      const ttlString: ms.StringValue = env.JWT_REFRESH_TOKEN_TTL as ms.StringValue || "7d"; 
-      const ttlMs = ms(ttlString);
-      const expiresAt = new Date(Date.now() + ttlMs);
-      const counselorRt: CounselorRefreshToken = new CounselorRefreshToken();
-      counselorRt.counselor = counselor;
-      counselorRt.token = newRefreshToken;
-      counselorRt.expires_at = expiresAt;
-      await this.counselorRefreshTokenRepo.save(counselorRt, manager);
-    });
+    
+    // Save new refresh token
+    const ttlString: ms.StringValue = env.JWT_REFRESH_TOKEN_TTL as ms.StringValue || "7d"; 
+    const ttlMs = ms(ttlString);
+    const expiresAt = new Date(Date.now() + ttlMs);
+    
+    await this.counselorRefreshTokenRepo.upsert(counselor.user_id, newRefreshToken, expiresAt);
     
     // Prepare response
     const response: ApiResponse = {

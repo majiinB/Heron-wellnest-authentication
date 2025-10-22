@@ -7,6 +7,7 @@ export class CounselorRefreshToken {
   @PrimaryGeneratedColumn("uuid")
   token_id!: string 
 
+  @Index({unique: true})
   @ManyToOne(()=> Counselor, {onDelete: "CASCADE"})
   @JoinColumn({name: "user_id"})
   counselor!: Counselor

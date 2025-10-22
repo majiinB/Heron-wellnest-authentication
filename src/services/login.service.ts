@@ -68,13 +68,6 @@ export class LoginService {
       user = await this.userRepository.save(newUser);
     }
 
-    // Check if a refresh token under the same user id exists
-    const existingRefreshToken : StudentRefreshToken | null = await this.studentRefreshTokenRepository.findByUserID(user.user_id);
-    if(existingRefreshToken){
-      // Delete if refresh token under the user exists
-      await this.studentRefreshTokenRepository.delete(existingRefreshToken);
-    }
-
     // User exists or has been created, generate tokens
     const payload: AccessTokenClaims = {
       sub: user.user_id,
@@ -94,11 +87,7 @@ export class LoginService {
     const ttlString: ms.StringValue = env.JWT_REFRESH_TOKEN_TTL as ms.StringValue || "7d"; 
     const ttlMs = ms(ttlString);
     const expiresAt = new Date(Date.now() + ttlMs);
-    const studentRT: StudentRefreshToken = new StudentRefreshToken(); 
-    studentRT.student = user;
-    studentRT.token = refreshToken;
-    studentRT.expires_at = expiresAt
-    await this.studentRefreshTokenRepository.save(studentRT);
+    await this.studentRefreshTokenRepository.upsert(user.user_id, refreshToken, expiresAt);
 
     // Prepare response
     const response: ApiResponse = {
@@ -140,13 +129,6 @@ export class LoginService {
       );
     }
 
-    // Check if a refresh token under the same user id exists
-    const existingRefreshToken : CounselorRefreshToken | null = await this.counselorRefreshTokenRepository.findByUserID(user.user_id);
-    if(existingRefreshToken){
-      // Delete if refresh token under the user exists
-      await this.counselorRefreshTokenRepository.delete(existingRefreshToken);
-    }
-
     // User exists, generate tokens
     const payload: AccessTokenClaims = {
       sub: user.user_id,
@@ -164,11 +146,8 @@ export class LoginService {
     const ttlString: ms.StringValue = env.JWT_REFRESH_TOKEN_TTL as ms.StringValue || "7d"; 
     const ttlMs = ms(ttlString);
     const expiresAt = new Date(Date.now() + ttlMs);
-    const counselorRT: CounselorRefreshToken = new CounselorRefreshToken(); 
-    counselorRT.counselor = user;
-    counselorRT.token = refreshToken;
-    counselorRT.expires_at = expiresAt
-    await this.counselorRefreshTokenRepository.save(counselorRT);
+    
+    await this.counselorRefreshTokenRepository.upsert(user.user_id, refreshToken, expiresAt);
 
     // Prepare response
     const response: ApiResponse = {
@@ -197,23 +176,14 @@ export class LoginService {
     }
 
     // Validate password
-    console.log('Plain password:', admin.password);
-    console.log('Hashed from DB:', user.password);
     const isValidPassword = await comparePassword(admin.password, user.password);
     if (!isValidPassword) {
       throw new AppError(
         401,
-        "INVALID_CREDENTIALS2",
+        "INVALID_CREDENTIALS",
         "Credentials provided are incorrect",
         true
       );
-    }
-
-    // Check if a refresh token under the same user id exists
-    const existingRefreshToken : AdminRefreshToken | null = await this.adminRefreshTokenRepository.findByUserID(user.user_id);
-    if(existingRefreshToken){
-      // Delete if refresh token under the user exists
-      await this.adminRefreshTokenRepository.delete(existingRefreshToken);
     }
 
     // User exists, generate tokens
@@ -232,11 +202,8 @@ export class LoginService {
     const ttlString: ms.StringValue = env.JWT_REFRESH_TOKEN_TTL as ms.StringValue || "7d"; 
     const ttlMs = ms(ttlString);
     const expiresAt = new Date(Date.now() + ttlMs);
-    const adminRT: AdminRefreshToken = new AdminRefreshToken(); 
-    adminRT.admin = user;
-    adminRT.token = refreshToken;
-    adminRT.expires_at = expiresAt
-    await this.adminRefreshTokenRepository.save(adminRT);
+    
+    await this.adminRefreshTokenRepository.upsert(user.user_id, refreshToken, expiresAt);
 
     // Prepare response
     const response: ApiResponse = {

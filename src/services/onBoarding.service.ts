@@ -77,13 +77,6 @@ export class OnBoardingService {
       updated_at: new Date(),
     });
 
-    // Check if a refresh token under the same user id exists
-    const existingRefreshToken : StudentRefreshToken | null = await this.studentRefreshTokenRepository.findByUserID(user.user_id);
-    if(existingRefreshToken){
-      // Delete if refresh token under the user exists
-      await this.studentRefreshTokenRepository.delete(existingRefreshToken);
-    }
-
     const payload: AccessTokenClaims = {
       sub: user.user_id,
       role: "student",
@@ -102,11 +95,8 @@ export class OnBoardingService {
     const ttlString: ms.StringValue = env.JWT_REFRESH_TOKEN_TTL as ms.StringValue || "7d"; 
     const ttlMs = ms(ttlString);
     const expiresAt = new Date(Date.now() + ttlMs);
-    const studentRT: StudentRefreshToken = new StudentRefreshToken(); 
-    studentRT.student = user;
-    studentRT.token = refreshToken;
-    studentRT.expires_at = expiresAt
-    await this.studentRefreshTokenRepository.save(studentRT);
+    
+    await this.studentRefreshTokenRepository.upsert(user.user_id, refreshToken, expiresAt);
     
     response = {
         success: true,

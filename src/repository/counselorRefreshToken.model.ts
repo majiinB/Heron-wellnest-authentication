@@ -45,6 +45,27 @@ export class CounselorRefreshTokenRepository {
     return this.repo.save(token);
   }
 
+  async upsert(userID: string, token: string, expiresAt: Date, manager?: EntityManager): Promise<void> {
+      const repo = manager ? manager.getRepository(CounselorRefreshToken) : this.repo;
+      
+      await repo.upsert(
+        {
+          counselor: { user_id: userID },
+          token: token,
+          expires_at: expiresAt
+        },
+        {
+          conflictPaths: ['counselor'], // matches your unique constraint
+          skipUpdateIfNoValuesChanged: false
+        }
+      );
+    }
+  
+    async deleteByUserID(userID: string, manager?: EntityManager): Promise<void> {
+      const repo = manager ? manager.getRepository(CounselorRefreshToken) : this.repo;
+      await repo.delete({ counselor: { user_id: userID } });
+    }
+
   async delete(token: CounselorRefreshToken, manager?: EntityManager): Promise<void> {
     if (manager) {
       await manager.remove(CounselorRefreshToken, token);

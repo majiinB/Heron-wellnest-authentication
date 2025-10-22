@@ -7,6 +7,7 @@ export class AdminRefreshToken {
   @PrimaryGeneratedColumn("uuid")
   token_id!: string 
 
+  @Index({unique: true})
   @ManyToOne(()=> Admin, {onDelete: "CASCADE"})
   @JoinColumn({name: "user_id"})
   admin!: Admin
