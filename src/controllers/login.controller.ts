@@ -85,4 +85,20 @@ export class LoginController {
     const response = await this.loginService.counselorLogin(counselor);
     res.status(200).json(response);
   }
+  
+    public async handleUnifiedLogin(req: AuthenticatedRequest, res: Response, _next: NextFunction): Promise<void> {
+      const { email, password } = req.body ?? {};
+  
+      if (!email || !password) {
+        throw new AppError(
+          400,
+          "MISSING_CREDENTIALS",
+          "Email and password are required",
+          true
+        );
+      }
+  
+      const response = await this.loginService.unifiedLogin(email, password);
+      res.status(200).json(response);
+    }
 }

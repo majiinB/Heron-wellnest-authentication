@@ -20,7 +20,7 @@ const counselorRefreshTokenRepository = new CounselorRefreshTokenRepository();
 const loginService = new LoginService(studentRepository, adminRepository, counselorRepository, studentRefreshTokenRepository, adminRefreshTokenRepository, counselorRefreshTokenRepository);
 const loginController = new LoginController(loginService);
 
- /**
+/**
  * @openapi
  * components:
  *   schemas:
@@ -48,28 +48,19 @@ const loginController = new LoginController(loginService);
  *       - If the student does not exist, a new account is automatically created.  
  *       - Any existing refresh token for the student will be invalidated and replaced.  
  *       - Returns a new JWT access token and refresh token pair for secure session management.
+ *       - **No request body needed** - user info is extracted from Google OAuth token in Authorization header.
  *     tags:
  *       - Student Authentication
  *     security: 
- *       - bearerAuth: [] 
- *     requestBody:
- *       required: true
- *       description: Google-authenticated user information injected by middleware
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required:
- *               - email
- *               - name
- *             properties:
- *               email:
- *                 type: string
- *                 format: email
- *                 example: student@example.edu
- *               name:
- *                 type: string
- *                 example: Juan Dela Cruz
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: header
+ *         name: Authorization
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Google OAuth token (Bearer token)
+ *         example: Bearer ya29.a0AfH6SMBx...
  *     responses:
  *       "200":
  *         description: Login successful or onboarding required
@@ -133,7 +124,7 @@ const loginController = new LoginController(loginService);
  *                   code: MISSING_GOOGLE_CREDENTIALS
  *                   message: Missing Google user info.
  *       "401":
- *         description: Unauthorized - token or time errors
+ *         description: Unauthorized - Invalid or expired Google token
  *         content:
  *           application/json:
  *             schema:
@@ -143,14 +134,14 @@ const loginController = new LoginController(loginService);
  *                 value:
  *                   success: false
  *                   code: AUTH_TOKEN_TIME_ERROR
- *                   message: Google token rejected due to time mismatch. Please check your device or server clock. / No token provided.
+ *                   message: Google token rejected due to time mismatch. Please check your device or server clock.
  *               noTokenError:
  *                 value:
  *                   success: false
  *                   code: AUTH_NO_TOKEN
  *                   message: No token provided.
  *       "403":
- *         description: Forbidden - unauthorized email domain
+ *         description: Forbidden - Unauthorized email domain
  *         content:
  *           application/json:
  *             schema:
@@ -160,7 +151,7 @@ const loginController = new LoginController(loginService);
  *                 value:
  *                   success: false
  *                   code: AUTH_UNAUTHORIZED_DOMAIN
- *                   message: "Unauthorized domain: undefined, Umak email required"
+ *                   message: "Unauthorized domain, Umak email required"
  *       "500":
  *         description: Internal server error
  *         content:
@@ -178,38 +169,19 @@ router.post("/student/login", googleAuthMiddleware, asyncHandler(loginController
 
 /**
  * @openapi
- * components:
- *   schemas:
- *     ErrorResponse:
- *       type: object
- *       properties:
- *         success:
- *           type: boolean
- *           example: false
- *         code:
- *           type: string
- *           example: BAD_REQUEST
- *         message:
- *           type: string
- *           example: Invalid input data
- */
- 
-/**
- * @openapi
  * /admin/login:
  *   post:
- *     summary: Admin login using personal credentials (email, password)
+ *     summary: Admin login using email and password
  *     description: |
- *       Handles admin login using email and password.  
- *       - Any existing refresh token for the student will be invalidated and replaced.  
+ *       Handles admin login using email and password credentials.  
+ *       - Validates admin credentials against the database.
+ *       - Any existing refresh token will be invalidated and replaced.  
  *       - Returns a JWT access token and refresh token pair for secure session management.
  *     tags:
  *       - Admin Authentication
- *     security: 
- *       - bearerAuth: [] 
  *     requestBody:
  *       required: true
- *       description: Google-authenticated user information injected by middleware
+ *       description: Admin login credentials
  *       content:
  *         application/json:
  *           schema:
@@ -224,10 +196,11 @@ router.post("/student/login", googleAuthMiddleware, asyncHandler(loginController
  *                 example: admin@example.edu
  *               admin_password:
  *                 type: string
- *                 example: admin123
+ *                 format: password
+ *                 example: securePassword123
  *     responses:
  *       "200":
- *         description: Login successful or onboarding required
+ *         description: Login successful
  *         content:
  *           application/json:
  *             schema:
@@ -263,7 +236,7 @@ router.post("/student/login", googleAuthMiddleware, asyncHandler(loginController
  *                     access_token: "eyJhbGciOiJIUzI1NiIsInR5cCI6..."
  *                     refresh_token: "eyJhbGciOiJIUzI1NiIsInR5cCI6..."
  *       "400":
- *         description: Missing Admin credentials
+ *         description: Missing credentials
  *         content:
  *           application/json:
  *             schema:
@@ -272,37 +245,20 @@ router.post("/student/login", googleAuthMiddleware, asyncHandler(loginController
  *               missingAdminCredentials:
  *                 value:
  *                   success: false
- *                   code: MISSING_Admin_CREDENTIALS
+ *                   code: MISSING_ADMIN_CREDENTIALS
  *                   message: Missing admin user info.
  *       "401":
- *         description: Unauthorized - token or time errors
+ *         description: Invalid credentials
  *         content:
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/ErrorResponse'
  *             examples:
- *               tokenTimeError:
+ *               invalidCredentials:
  *                 value:
  *                   success: false
- *                   code: AUTH_TOKEN_TIME_ERROR
- *                   message: Google token rejected due to time mismatch. Please check your device or server clock. / No token provided.
- *               noTokenError:
- *                 value:
- *                   success: false
- *                   code: AUTH_NO_TOKEN
- *                   message: No token provided.
- *       "403":
- *         description: Forbidden - unauthorized email domain
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/ErrorResponse'
- *             examples:
- *               unauthorizedDomain:
- *                 value:
- *                   success: false
- *                   code: AUTH_UNAUTHORIZED_DOMAIN
- *                   message: "Unauthorized domain: undefined, Umak email required"
+ *                   code: INVALID_CREDENTIALS
+ *                   message: Credentials provided are incorrect
  *       "500":
  *         description: Internal server error
  *         content:
@@ -320,38 +276,19 @@ router.post("/admin/login", asyncHandler(loginController.handleAdminLogin.bind(l
 
 /**
  * @openapi
- * components:
- *   schemas:
- *     ErrorResponse:
- *       type: object
- *       properties:
- *         success:
- *           type: boolean
- *           example: false
- *         code:
- *           type: string
- *           example: BAD_REQUEST
- *         message:
- *           type: string
- *           example: Invalid input data
- */
- 
-/**
- * @openapi
  * /counselor/login:
  *   post:
- *     summary: Counselor login using personal credentials (email, password)
+ *     summary: Counselor login using email and password
  *     description: |
- *       Handles counselor login using email and password.  
- *       - Any existing refresh token for the student will be invalidated and replaced.  
+ *       Handles counselor login using email and password credentials.  
+ *       - Validates counselor credentials against the database.
+ *       - Any existing refresh token will be invalidated and replaced.  
  *       - Returns a JWT access token and refresh token pair for secure session management.
  *     tags:
  *       - Counselor Authentication
- *     security: 
- *       - bearerAuth: [] 
  *     requestBody:
  *       required: true
- *       description: Google-authenticated user information injected by middleware
+ *       description: Counselor login credentials
  *       content:
  *         application/json:
  *           schema:
@@ -366,10 +303,11 @@ router.post("/admin/login", asyncHandler(loginController.handleAdminLogin.bind(l
  *                 example: counselor@example.edu
  *               counselor_password:
  *                 type: string
- *                 example: counselor123
+ *                 format: password
+ *                 example: securePassword123
  *     responses:
  *       "200":
- *         description: Login successful or onboarding required
+ *         description: Login successful
  *         content:
  *           application/json:
  *             schema:
@@ -405,46 +343,29 @@ router.post("/admin/login", asyncHandler(loginController.handleAdminLogin.bind(l
  *                     access_token: "eyJhbGciOiJIUzI1NiIsInR5cCI6..."
  *                     refresh_token: "eyJhbGciOiJIUzI1NiIsInR5cCI6..."
  *       "400":
- *         description: Missing Admin credentials
+ *         description: Missing credentials
  *         content:
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/ErrorResponse'
  *             examples:
- *               missingAdminCredentials:
+ *               missingCounselorCredentials:
  *                 value:
  *                   success: false
- *                   code: MISSING_Admin_CREDENTIALS
- *                   message: Missing admin user info.
+ *                   code: MISSING_COUNSELOR_CREDENTIALS
+ *                   message: Missing counselor user info.
  *       "401":
- *         description: Unauthorized - token or time errors
+ *         description: Invalid credentials
  *         content:
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/ErrorResponse'
  *             examples:
- *               tokenTimeError:
+ *               invalidCredentials:
  *                 value:
  *                   success: false
- *                   code: AUTH_TOKEN_TIME_ERROR
- *                   message: Google token rejected due to time mismatch. Please check your device or server clock. / No token provided.
- *               noTokenError:
- *                 value:
- *                   success: false
- *                   code: AUTH_NO_TOKEN
- *                   message: No token provided.
- *       "403":
- *         description: Forbidden - unauthorized email domain
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/ErrorResponse'
- *             examples:
- *               unauthorizedDomain:
- *                 value:
- *                   success: false
- *                   code: AUTH_UNAUTHORIZED_DOMAIN
- *                   message: "Unauthorized domain: undefined, Umak email required"
+ *                   code: INVALID_CREDENTIALS
+ *                   message: Credentials provided are incorrect
  *       "500":
  *         description: Internal server error
  *         content:
@@ -459,5 +380,126 @@ router.post("/admin/login", asyncHandler(loginController.handleAdminLogin.bind(l
  *                   message: Internal server error
  */
 router.post("/counselor/login", asyncHandler(loginController.handleCounselorLogin.bind(loginController)));
+
+/**
+ * @openapi
+ * /login:
+ *   post:
+ *     summary: Unified login for admin and counselor
+ *     description: |
+ *       Handles login for both admin and counselor using email and password.  
+ *       - Role is automatically detected based on the email in the database.
+ *       - Any existing refresh token will be invalidated and replaced.  
+ *       - Returns a JWT access token and refresh token pair for secure session management.
+ *     tags:
+ *       - Authentication
+ *     requestBody:
+ *       required: true
+ *       description: Login credentials (works for both admin and counselor)
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - email
+ *               - password
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 format: email
+ *                 example: user@example.edu
+ *               password:
+ *                 type: string
+ *                 format: password
+ *                 example: securePassword123
+ *     responses:
+ *       "200":
+ *         description: Login successful
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 code:
+ *                   type: string
+ *                   example: LOGIN_SUCCESS
+ *                 message:
+ *                   type: string
+ *                   example: Admin login successful
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     access_token:
+ *                       type: string
+ *                       description: JWT access token for authenticated requests
+ *                       example: eyJhbGciOiJIUzI1NiIsInR5cCI6...
+ *                     refresh_token:
+ *                       type: string
+ *                       description: Refresh token for session management
+ *                       example: eyJhbGciOiJIUzI1NiIsInR5cCI6...
+ *                     role:
+ *                       type: string
+ *                       description: User role (admin, super_admin, or counselor)
+ *                       example: admin
+ *             examples:
+ *               adminLogin:
+ *                 value:
+ *                   success: true
+ *                   code: LOGIN_SUCCESS
+ *                   message: Admin login successful
+ *                   data:
+ *                     access_token: "eyJhbGciOiJIUzI1NiIsInR5cCI6..."
+ *                     refresh_token: "eyJhbGciOiJIUzI1NiIsInR5cCI6..."
+ *                     role: admin
+ *               counselorLogin:
+ *                 value:
+ *                   success: true
+ *                   code: LOGIN_SUCCESS
+ *                   message: Counselor login successful
+ *                   data:
+ *                     access_token: "eyJhbGciOiJIUzI1NiIsInR5cCI6..."
+ *                     refresh_token: "eyJhbGciOiJIUzI1NiIsInR5cCI6..."
+ *                     role: counselor
+ *       "400":
+ *         description: Missing credentials
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *             examples:
+ *               missingCredentials:
+ *                 value:
+ *                   success: false
+ *                   code: MISSING_CREDENTIALS
+ *                   message: Email and password are required
+ *       "401":
+ *         description: Invalid credentials
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *             examples:
+ *               invalidCredentials:
+ *                 value:
+ *                   success: false
+ *                   code: INVALID_CREDENTIALS
+ *                   message: Invalid email or password
+ *       "500":
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *             examples:
+ *               serverError:
+ *                 value:
+ *                   success: false
+ *                   code: INTERNAL_SERVER_ERROR
+ *                   message: Internal server error
+ */
+router.post("/login", asyncHandler(loginController.handleUnifiedLogin.bind(loginController)));
 
 export default router;

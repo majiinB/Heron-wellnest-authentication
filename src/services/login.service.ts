@@ -218,6 +218,40 @@ export class LoginService {
 
     return response;
   }
+  
+  public async unifiedLogin(email: string, password: string): Promise<ApiResponse> {
+    // Try admin login first
+    const admin = new Admin();
+    admin.email = email;
+    admin.password = password;
+
+    try {
+      const adminResult = await this.adminLogin(admin);
+      return adminResult; // ✅ Reuse existing adminLogin
+    } catch (adminError) {
+      // Admin not found or invalid password, try counselor
+    }
+
+    // Try counselor login
+    const counselor = new Counselor();
+    counselor.email = email;
+    counselor.password = password;
+
+    try {
+      const counselorResult = await this.counselorLogin(counselor);
+      return counselorResult; // ✅ Reuse existing counselorLogin
+    } catch (counselorError) {
+      // Neither admin nor counselor
+    }
+
+    // If both fail, throw generic error (security: don't reveal which one doesn't exist)
+    throw new AppError(
+      401,
+      "INVALID_CREDENTIALS",
+      "Invalid email or password",
+      true
+    );
+  }
 }
 
 
