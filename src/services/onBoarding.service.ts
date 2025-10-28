@@ -96,7 +96,7 @@ export class OnBoardingService {
     
     await this.studentRefreshTokenRepository.upsert(user.user_id, refreshToken, expiresAt);
     
-    const response : ApiResponse = {
+    const response: ApiResponse = {
         success: true,
         code: "USER_SUCESSFULLY_ONBOARDED",
         message: `User ${user.user_name} sucessfully onboarded`,
