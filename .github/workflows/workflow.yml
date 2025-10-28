@@ -32,11 +32,12 @@ jobs:
   build-and-deploy:
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
+    environment: Production
     env:
-      SERVICE_NAME: hw-authentication-api
+      SERVICE_NAME: hw-auth-api
       GCP_PROJECT_ID: heron-wellnest
-      REGION: asia-southeast1
-      ARTIFACT_REGISTRY_REPO: heron-repo
+      REGION: us-central1
+      ARTIFACT_REGISTRY_REPO: heron-wellnest-repo
     steps:
       - uses: actions/checkout@v3
 
@@ -77,6 +78,12 @@ jobs:
           gcloud run deploy ${{ env.SERVICE_NAME }} \
             --image ${{ env.REGION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.ARTIFACT_REGISTRY_REPO}}/${{ env.SERVICE_NAME }}:latest \
             --region ${{ env.REGION }} \
-            --set-env-vars NODE_ENV=production \
             --platform managed \
-            --allow-unauthenticated
+            --allow-unauthenticated \
+            --set-env-vars NODE_ENV=${{ vars.NODE_ENV }},DB_USER=${{ vars.DB_USER }},DB_NAME=${{vars.DB_NAME}},DB_HOST=${{ vars.DB_HOST }},DB_PORT=${{ vars.DB_PORT }},GOOGLE_EMAIL_DOMAIN=${{ vars.GOOGLE_EMAIL_DOMAIN }},JWT_ACCESS_TOKEN_TTL=${{ vars.JWT_ACCESS_TOKEN_TTL }},JWT_REFRESH_TOKEN_TTL=${{ vars.JWT_REFRESH_TOKEN_TTL }},JWT_ISSUER=${{ vars.JWT_ISSUER }},JWT_AUDIENCE=${{ vars.JWT_AUDIENCE }},JWT_ALGORITHM=${{ vars.JWT_ALGORITHM }} \
+            --set-secrets DB_PASSWORD=DB_PASSWORD:latest,GOOGLE_CLIENT_ID=GOOGLE_CLIENT_ID:latest,JWT_SECRET=JWT_SECRET:latest \
+            --timeout=300 \
+            --concurrency=20 \
+            --min-instances=0 \
+            --max-instances=3 \
+            --cpu-boost
