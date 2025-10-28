@@ -1,7 +1,6 @@
 import type { EntityManager } from "typeorm";
 import { AppDataSource } from "../config/datasource.config.js";
 import { CounselorRefreshToken } from "../models/counselorRefreshToken.model.js";
-import type { AdminRefreshToken } from "../models/adminRefreshToken.model.js";
 
 /**
  * Counselor Refresh Token Repository

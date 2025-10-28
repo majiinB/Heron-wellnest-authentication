@@ -1,5 +1,4 @@
 import { AppDataSource } from "../config/datasource.config.js";
-import type { CollegeDepartment } from "../models/collegeDepartment.model.js";
 import { CollegeProgram } from "../models/collegeProgram.model.js";
 
 /**

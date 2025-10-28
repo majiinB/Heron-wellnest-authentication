@@ -4,7 +4,6 @@ import type { ApiResponse } from "../types/apiResponse.type.js";
 import type { AccessTokenClaims } from "../types/accessTokenClaim.type.js";
 import { signAccessToken, signRefreshToken } from "../utils/jwt.util.js";
 import type { StudentRefreshTokenRepository } from "../repository/studentRefreshToken.repository.js";
-import { StudentRefreshToken } from "../models/studentRefreshToken.model.js";
 import { CollegeProgramRepository } from "../repository/collegeProgram.repository.js";
 import ms from "ms";
 import { env } from "../config/env.config.js";
@@ -37,7 +36,6 @@ export class OnBoardingService {
 
   public async completeStudentInfo(studentID : string, collegeProgram: string): Promise<ApiResponse>{
     const user : Student | null = await this.studentRepository.findById(studentID);
-    let response : ApiResponse;
 
     if(!user){
       throw new AppError(
@@ -98,7 +96,7 @@ export class OnBoardingService {
     
     await this.studentRefreshTokenRepository.upsert(user.user_id, refreshToken, expiresAt);
     
-    response = {
+    const response : ApiResponse = {
         success: true,
         code: "USER_SUCESSFULLY_ONBOARDED",
         message: `User ${user.user_name} sucessfully onboarded`,

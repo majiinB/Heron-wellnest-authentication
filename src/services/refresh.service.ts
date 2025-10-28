@@ -7,7 +7,6 @@ import type { ApiResponse } from "../types/apiResponse.type.js";
 import { AppError } from "../types/appError.type.js";
 import { signAccessToken, signRefreshToken } from "../utils/jwt.util.js";
 import { env } from "../config/env.config.js";
-import { AppDataSource } from "../config/datasource.config.js";
 import { AdminRefreshToken } from "../models/adminRefreshToken.model.js";
 import { CounselorRefreshToken } from "../models/counselorRefreshToken.model.js";
 import { AdminRefreshTokenRepository } from "../repository/adminRefreshToken.repository.js";

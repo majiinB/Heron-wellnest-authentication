@@ -1,7 +1,8 @@
 import type { Request, Response, NextFunction } from "express";
 import type { RefreshTokenService } from "../services/refresh.service.js";
 import { AppError } from "../types/appError.type.js";
-import { v4 as uuidv4, validate as isUuid } from "uuid";
+// @typescript-eslint/no-unused-vars
+import { validate as isUuid } from "uuid";
 
 /**
  * RefreshToken Controller

@@ -1,7 +1,6 @@
 import ms from "ms"
 import { env } from "../config/env.config.js";
 import { Student } from "../models/student.model.js";
-import { StudentRefreshToken } from "../models/studentRefreshToken.model.js";
 import { StudentRepository } from "../repository/student.repository.js";
 import { StudentRefreshTokenRepository } from "../repository/studentRefreshToken.repository.js";
 import type { AccessTokenClaims } from "../types/accessTokenClaim.type.js";
@@ -11,12 +10,10 @@ import { Admin } from "../models/admin.model.js";
 import { AdminRepository } from "../repository/admin.repository.js";
 import { AppError } from "../types/appError.type.js";
 import { comparePassword } from "../utils/crypt.util.js";
-import { AdminRefreshToken } from "../models/adminRefreshToken.model.js";
 import { AdminRefreshTokenRepository } from "../repository/adminRefreshToken.repository.js";
 import { Counselor } from "../models/counselor.model.js";
 import { CounselorRepository } from "../repository/counselor.repository.js";
 import { CounselorRefreshTokenRepository } from "../repository/counselorRefreshToken.model.js";
-import { CounselorRefreshToken } from "../models/counselorRefreshToken.model.js";
 
 /**
  * Login Service
@@ -228,7 +225,7 @@ export class LoginService {
     try {
       const adminResult = await this.adminLogin(admin);
       return adminResult; // ✅ Reuse existing adminLogin
-    } catch (adminError) {
+    } catch {
       // Admin not found or invalid password, try counselor
     }
 
@@ -240,7 +237,7 @@ export class LoginService {
     try {
       const counselorResult = await this.counselorLogin(counselor);
       return counselorResult; // ✅ Reuse existing counselorLogin
-    } catch (counselorError) {
+    } catch {
       // Neither admin nor counselor
     }
 
