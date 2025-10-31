@@ -24,7 +24,8 @@ export class StudentRefreshTokenRepository {
         token: token,
         student: {user_id : userID}
       },
-      relations: ["student"]
+      relations: ["student", 'student.college_program',
+        'student.college_program.college_department_id']
     });
   }
 
