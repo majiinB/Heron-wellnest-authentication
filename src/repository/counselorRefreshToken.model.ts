@@ -14,7 +14,7 @@ import { CounselorRefreshToken } from "../models/counselorRefreshToken.model.js"
  * 
  * @author Arthur M. Artugue
  * @created 2025-10-16
- * @updated 2025-10-16
+ * @updated 2025-11-01
  */
 export class CounselorRefreshTokenRepository {
   private repo = AppDataSource.getRepository(CounselorRefreshToken);
@@ -25,7 +25,7 @@ export class CounselorRefreshTokenRepository {
         token: token,
         counselor: {user_id : userID}
       },
-      relations: ["counselor"]
+      relations: ["counselor", "counselor.college_department"]
     });
   }
 

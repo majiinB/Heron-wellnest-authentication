@@ -17,7 +17,7 @@ import { Admin } from "../models/admin.model.js";
  * 
  * @author Arthur M. Artugue
  * @created 2025-09-02
- * @updated 2025-09-04
+ * @updated 2025-11-01
  */
 export class LoginController {
   private loginService: LoginService;

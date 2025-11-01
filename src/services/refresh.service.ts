@@ -23,7 +23,7 @@ import type { Counselor } from "../models/counselor.model.js";
  * 
  * @author Arthur M. Artugue
  * @created 2025-09-04
- * @updated 2025-10-18
+ * @updated 2025-11-01
  */
 export class RefreshTokenService {
   private studentRefreshTokenRepo: StudentRefreshTokenRepository;
@@ -132,7 +132,7 @@ export class RefreshTokenService {
     // Prepare response
     const response: ApiResponse = {
       success: true,
-      code: student.finished_onboarding ? "ACCESS_TOKEN_REFRESS_SUCCESS" : "ACCESS_TOKEN_REFRESH_SUCCESS_ONBOARDING_REQUIRED",
+      code: student.finished_onboarding ? "ACCESS_TOKEN_REFRESH_SUCCESS" : "ACCESS_TOKEN_REFRESH_SUCCESS_ONBOARDING_REQUIRED",
       message: student.finished_onboarding ? 
       "Student access token refresh successful" : 
       "Student access token refresh successful. Onboarding required to complete your profile",

@@ -19,7 +19,7 @@
  *
  * @author Arthur M. Artugue
  * @created 2025-08-16
- * @updated 2025-08-28
+ * @updated 2025-11-01
  */
 
 import express from 'express';
@@ -47,7 +47,7 @@ const swaggerOptions = {
     openapi: '3.0.0',
     info: {
       title: 'Heron Wellnest Authentication API',
-      version: '1.0.1',
+      version: '1.0.2',
       description: "Heron Wellnest Authentication API provides secure endpoints for managing user authentication and authorization within the platform. It supports user registration, login, token-based authentication (JWT), role-based access control, and secure session management. This API ensures the protection of sensitive student information through encryption, while enabling seamless integration with other Wellnest modules/services."
     },
     servers: [
