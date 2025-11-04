@@ -2,7 +2,7 @@ import type { CorsOptions } from "cors";
 import { env } from "./env.config.js";
 
 const staticAllowlist = [
-  "https://production-domain.com",
+  "https://wellnest-smoky.vercel.app",
 ];
 
 // // Parse comma-separated env list (exact origin strings)
@@ -10,6 +10,16 @@ const staticAllowlist = [
 //   .split(",")
 //   .map(s => s.trim())
 //   .filter(Boolean);
+
+function isVercelOrigin(origin: string): boolean {
+  try {
+    const url = new URL(origin);
+    // Allow production and ANY preview deployment
+    return url.hostname.endsWith(".vercel.app");
+  } catch {
+    return false;
+  }
+}
 
 const allowlist = new Set<string>([...staticAllowlist]);
 
