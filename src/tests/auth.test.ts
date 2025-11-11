@@ -20,7 +20,7 @@ import app from "../app.js";
 describe("Health Check", () => {
   it("should return status ok", async () => {
     const res = await request(app).get("/api/v1/auth/health")
-    .set("origin", "https://production-domain.com");
+    .set("origin", "https://wellnest-smoky.vercel.app");
     expect(res.statusCode).toBe(200);
     expect(res.body).toEqual({ status: "ok" });
   });
