@@ -30,6 +30,7 @@ jobs:
       - run: npm test -- src/tests/auth.test.ts
         env:
           JWT_SECRET: test-secret-key-for-ci-cd-testing-only-minimum-32-chars
+          STUDENT_APP_URL: http://localhost:300
 
   build-and-deploy:
     if: github.ref == 'refs/heads/main'
@@ -58,6 +59,7 @@ jobs:
       - run: npm test -- src/tests/auth.test.ts
         env:
           JWT_SECRET: test-secret-key-for-ci-cd-testing-only-minimum-32-chars
+          STUDENT_APP_URL: http://localhost:300
 
       - uses: google-github-actions/auth@v1
         with:
