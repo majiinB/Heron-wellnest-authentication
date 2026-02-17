@@ -45,7 +45,9 @@ export const envSchema = z.object({
   JWT_ISSUER: z.string().default("heron-wellnest-auth-api"),
   JWT_AUDIENCE: z.string().default("heron-wellnest-users"),
   JWT_ALGORITHM: z.enum(["HS256", "RS256"]).default("HS256"),
-  // CORS_ORIGIN: z.string().url(),
+  
+  // CORS configuration
+  STUDENT_APP_URL: z.string().min(1, "STUDENT_APP_URL is required"),
 }).superRefine((env, ctx) => {
   if (env.JWT_ALGORITHM === "HS256" && !env.JWT_SECRET) {
     ctx.addIssue({

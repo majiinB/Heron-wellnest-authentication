@@ -84,7 +84,7 @@ jobs:
             --region ${{ env.REGION }} \
             --platform managed \
             --allow-unauthenticated \
-            --set-env-vars NODE_ENV=${{ vars.NODE_ENV }},DB_USER=${{ vars.DB_USER }},DB_NAME=${{vars.DB_NAME}},DB_HOST=${{ vars.DB_HOST }},DB_PORT=${{ vars.DB_PORT }},GOOGLE_EMAIL_DOMAIN=${{ vars.GOOGLE_EMAIL_DOMAIN }},JWT_ACCESS_TOKEN_TTL=${{ vars.JWT_ACCESS_TOKEN_TTL }},JWT_REFRESH_TOKEN_TTL=${{ vars.JWT_REFRESH_TOKEN_TTL }},JWT_ISSUER=${{ vars.JWT_ISSUER }},JWT_AUDIENCE=${{ vars.JWT_AUDIENCE }},JWT_ALGORITHM=${{ vars.JWT_ALGORITHM }} \
+            --set-env-vars NODE_ENV=${{ vars.NODE_ENV }},DB_USER=${{ vars.DB_USER }},DB_NAME=${{vars.DB_NAME}},DB_HOST=${{ vars.DB_HOST }},DB_PORT=${{ vars.DB_PORT }},GOOGLE_EMAIL_DOMAIN=${{ vars.GOOGLE_EMAIL_DOMAIN }},JWT_ACCESS_TOKEN_TTL=${{ vars.JWT_ACCESS_TOKEN_TTL }},JWT_REFRESH_TOKEN_TTL=${{ vars.JWT_REFRESH_TOKEN_TTL }},JWT_ISSUER=${{ vars.JWT_ISSUER }},JWT_AUDIENCE=${{ vars.JWT_AUDIENCE }},JWT_ALGORITHM=${{ vars.JWT_ALGORITHM }},STUDENT_APP_URL=${{vars.STUDENT_APP_URL}} \
             --set-secrets DB_PASSWORD=DB_PASSWORD:latest,GOOGLE_CLIENT_ID=GOOGLE_CLIENT_ID:latest,JWT_SECRET=JWT_SECRET:latest \
             --timeout=300 \
             --concurrency=20 \

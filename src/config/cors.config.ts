@@ -2,7 +2,7 @@ import type { CorsOptions } from "cors";
 import { env } from "./env.config.js";
 
 const staticAllowlist = [
-  "https://wellnest-smoky.vercel.app",
+  env.STUDENT_APP_URL.toString(),
 ];
 
 // // Parse comma-separated env list (exact origin strings)
