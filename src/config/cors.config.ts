@@ -67,9 +67,9 @@ export const corsOptions: CorsOptions = {
     }
 
     // Optionally allow localhost to hit prod API (for testing)
-    // if (isLocalhostOrigin(origin) && env.NODE_ENV === "production") {
-    //   return callback(null, true);
-    // }
+    if (isLocalhostOrigin(origin)) {
+      return callback(null, true);
+    }
 
     return callback(new Error("Not allowed by CORS"), false);
   },
