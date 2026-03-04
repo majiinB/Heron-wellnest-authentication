@@ -18,7 +18,7 @@ dotenv.config();
  *
  * @author Arthur M. Artugue
  * @created 2025-08-17
- * @updated 2025-08-29
+ * @updated 2026-03-04
  */
 export const envSchema = z.object({
   // Application environment
@@ -47,7 +47,7 @@ export const envSchema = z.object({
   JWT_ALGORITHM: z.enum(["HS256", "RS256"]).default("HS256"),
   
   // CORS configuration
-  STUDENT_APP_URL: z.string().min(1, "STUDENT_APP_URL is required"),
+  CORS_ALLOWED_ORIGINS: z.string().min(1, "CORS_ALLOWED_ORIGINS is required"),
 }).superRefine((env, ctx) => {
   if (env.JWT_ALGORITHM === "HS256" && !env.JWT_SECRET) {
     ctx.addIssue({

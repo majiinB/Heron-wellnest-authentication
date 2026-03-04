@@ -1,15 +1,15 @@
 import type { CorsOptions } from "cors";
 import { env } from "./env.config.js";
 
-const staticAllowlist = [
-  env.STUDENT_APP_URL.toString(),
-];
+// const staticAllowlist = [
+//   env.STUDENT_APP_URL.toString(),
+// ];
 
-// // Parse comma-separated env list (exact origin strings)
-// const envAllowlist = (env.CORS_ALLOWED_ORIGINS ?? "")
-//   .split(",")
-//   .map(s => s.trim())
-//   .filter(Boolean);
+// Parse comma-separated env list (exact origin strings)
+const envAllowlist = (env.CORS_ALLOWED_ORIGINS ?? "")
+  .split(",")
+  .map((s: string) => s.trim())
+  .filter(Boolean);
 
 function isVercelOrigin(origin: string): boolean {
   try {
@@ -21,7 +21,7 @@ function isVercelOrigin(origin: string): boolean {
   }
 }
 
-const allowlist = new Set<string>([...staticAllowlist]);
+const allowlist = new Set<string>([...envAllowlist]);
 
 function isLocalhostOrigin(origin: string): boolean {
   try {
@@ -66,8 +66,8 @@ export const corsOptions: CorsOptions = {
       return callback(null, true);
     }
 
-    // Optionally allow localhost to hit prod (comment out if you don’t want this)
-    if (isLocalhostOrigin(origin)) {
+    // Optionally allow localhost to hit prod API (for testing)
+    if (isLocalhostOrigin(origin) && env.NODE_ENV === "production") {
       return callback(null, true);
     }
 
