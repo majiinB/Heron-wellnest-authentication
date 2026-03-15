@@ -1,4 +1,4 @@
-import { Storage, type UploadOptions } from "@google-cloud/storage";
+import { Bucket, Storage, type UploadOptions } from "@google-cloud/storage";
 import { PassThrough, type Readable } from "node:stream";
 import { env } from "./env.config.js";
 
@@ -37,7 +37,7 @@ export function getStorageBucketName(): string {
 	return env.GCS_BUCKET_NAME;
 }
 
-export function getStorageBucket() {
+export function getStorageBucket(): Bucket {
 	return storage.bucket(getStorageBucketName());
 }
 
@@ -76,6 +76,13 @@ export async function uploadStreamToGcs(input: UploadFromStreamInput): Promise<s
 	return `gs://${bucket.name}/${input.destination}`;
 }
 
-export function getPublicGcsUrl(objectPath: string): string {
-	return `https://storage.googleapis.com/${getStorageBucketName()}/${encodeURI(objectPath)}`;
+export async function getSignedUrl(objectPath: string):Promise<string> {
+	const file = getStorageBucket().file(objectPath);
+
+	const [url] = await file.getSignedUrl({
+		action: "read",
+		expires: Date.now() + 15 * 60 * 1000, // 15 minutes
+	});
+
+	return url;
 }
