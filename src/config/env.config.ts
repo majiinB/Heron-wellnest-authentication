@@ -35,6 +35,12 @@ export const envSchema = z.object({
   // Google OAuth2
   GOOGLE_CLIENT_ID: z.string().min(1, "GOOGLE_CLIENT_ID is required").default('fake-client-id.apps.googleusercontent.com'),
   GOOGLE_EMAIL_DOMAIN: z.string().min(1, "GOOGLE_EMAIL_DOMAIN is required").default("umak.edu.ph"),
+
+  // Google Cloud Storage
+  GCS_BUCKET_NAME: z.string().min(1, "GCS_BUCKET_NAME is required"),
+  GCS_PROJECT_ID: z.string().min(1, "GCS_PROJECT_ID is required"),
+  GCS_CLIENT_EMAIL: z.string().min(1, "GCS_CLIENT_EMAIL is required"),
+  GCS_PRIVATE_KEY: z.string().min(1, "GCS_PRIVATE_KEY is required"),
   
   // Security
   JWT_SECRET: z.string().min(32).optional(), // for HS256
