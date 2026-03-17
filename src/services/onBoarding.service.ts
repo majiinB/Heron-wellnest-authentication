@@ -9,6 +9,85 @@ import ms from "ms";
 import { env } from "../config/env.config.js";
 import type { CollegeProgram } from "../models/collegeProgram.model.js";
 import { AppError } from "../types/appError.type.js";
+import { uploadBufferToGcs } from "../config/cloudStorage.config.js";
+import { randomUUID } from "node:crypto";
+
+type StudentOnboardingImageInput = {
+  buffer: Buffer;
+  mimetype: string;
+  size: number;
+  originalName?: string;
+};
+
+const MAX_ONBOARDING_IMAGE_SIZE_BYTES = 5 * 1024 * 1024; // 5MB
+
+function detectImageMimeType(buffer: Buffer): string | null {
+  if (buffer.length < 12) {
+    return null;
+  }
+
+  // JPEG FF D8 FF
+  if (buffer[0] === 0xff && buffer[1] === 0xd8 && buffer[2] === 0xff) {
+    return "image/jpeg";
+  }
+
+  // PNG 89 50 4E 47 0D 0A 1A 0A
+  if (
+    buffer[0] === 0x89 &&
+    buffer[1] === 0x50 &&
+    buffer[2] === 0x4e &&
+    buffer[3] === 0x47 &&
+    buffer[4] === 0x0d &&
+    buffer[5] === 0x0a &&
+    buffer[6] === 0x1a &&
+    buffer[7] === 0x0a
+  ) {
+    return "image/png";
+  }
+
+  // GIF87a / GIF89a
+  if (
+    buffer[0] === 0x47 &&
+    buffer[1] === 0x49 &&
+    buffer[2] === 0x46 &&
+    buffer[3] === 0x38 &&
+    (buffer[4] === 0x37 || buffer[4] === 0x39) &&
+    buffer[5] === 0x61
+  ) {
+    return "image/gif";
+  }
+
+  // WEBP: RIFF....WEBP
+  if (
+    buffer[0] === 0x52 &&
+    buffer[1] === 0x49 &&
+    buffer[2] === 0x46 &&
+    buffer[3] === 0x46 &&
+    buffer[8] === 0x57 &&
+    buffer[9] === 0x45 &&
+    buffer[10] === 0x42 &&
+    buffer[11] === 0x50
+  ) {
+    return "image/webp";
+  }
+
+  return null;
+}
+
+function extensionFromMimeType(mimeType: string): string {
+  switch (mimeType) {
+    case "image/jpeg":
+      return "jpg";
+    case "image/png":
+      return "png";
+    case "image/gif":
+      return "gif";
+    case "image/webp":
+      return "webp";
+    default:
+      return "bin";
+  }
+}
 
 /**
  * OnBoarding Service
@@ -107,5 +186,86 @@ export class OnBoardingService {
         }
       }
     return response;
+  }
+
+  public async uploadStudentOnboardingImage(studentID: string, imageFile: StudentOnboardingImageInput): Promise<ApiResponse> {
+    const user : Student | null = await this.studentRepository.findById(studentID);
+
+    if (!user) {
+      throw new AppError(
+        404,
+        "USER_TO_BE_ONBOARDED_NOT_FOUND",
+        `User with ID: ${studentID} was not found`,
+        true,
+      );
+    }
+
+    if (!imageFile?.buffer || imageFile.buffer.length === 0) {
+      throw new AppError(
+        400,
+        "IMAGE_FILE_MISSING",
+        "Image file is required for onboarding.",
+        true,
+      );
+    }
+
+    const imageSize = imageFile.size ?? imageFile.buffer.length;
+    if (imageSize > MAX_ONBOARDING_IMAGE_SIZE_BYTES) {
+      throw new AppError(
+        413,
+        "IMAGE_FILE_TOO_LARGE",
+        `Image file must not exceed ${MAX_ONBOARDING_IMAGE_SIZE_BYTES / (1024 * 1024)}MB.`,
+        true,
+      );
+    }
+
+    if (!imageFile.mimetype || !imageFile.mimetype.startsWith("image/")) {
+      throw new AppError(
+        400,
+        "INVALID_IMAGE_MIMETYPE",
+        "Uploaded file must be an image.",
+        true,
+      );
+    }
+
+    const detectedMimeType = detectImageMimeType(imageFile.buffer);
+    if (!detectedMimeType) {
+      throw new AppError(
+        400,
+        "INVALID_IMAGE_FILE",
+        "Uploaded file is not a supported image format.",
+        true,
+      );
+    }
+
+    const extension = extensionFromMimeType(detectedMimeType);
+    const objectPath = `onboarding/${new Date().getFullYear()}/student/${user.user_id}/${Date.now()}-${randomUUID()}.${extension}`;
+
+    const gcsUri = await uploadBufferToGcs({
+      buffer: imageFile.buffer,
+      destination: objectPath,
+      contentType: detectedMimeType,
+      metadata: {
+        metadata: {
+          student_id: user.user_id,
+          upload_purpose: "student_onboarding_image",
+          source_file_name: imageFile.originalName ?? "unknown",
+        },
+      },
+    });
+
+    // TODO: Publish message to Pub/Sub here so downstream worker can process this uploaded image.
+
+    return {
+      success: true,
+      code: "ONBOARDING_IMAGE_UPLOADED",
+      message: `Onboarding image uploaded for user ${user.user_name}.`,
+      data: {
+        gcs_uri: gcsUri,
+        object_path: objectPath,
+        content_type: detectedMimeType,
+        size_bytes: imageSize,
+      },
+    };
   }
 }

@@ -3,6 +3,17 @@ import type { AuthenticatedRequest } from "../interface/authRequest.interface.js
 import type { OnBoardingService } from "../services/onBoarding.service.js";
 import { AppError } from "../types/appError.type.js";
 
+type UploadedImageFile = {
+  buffer: Buffer;
+  mimetype: string;
+  size: number;
+  originalname?: string;
+};
+
+type AuthenticatedRequestWithFile = AuthenticatedRequest & {
+  file?: UploadedImageFile;
+};
+
 /**
  * OnBoarding Controller
  * 
@@ -46,6 +57,41 @@ export class OnBordingController {
     }
 
     const response = await this.onBoardingService.completeStudentInfo(sub, college_program);
+    res.status(200).json(response);
+  }
+
+  public async handleStudentOnboardingImageUpload(
+    req: AuthenticatedRequestWithFile,
+    res: Response,
+    _next: NextFunction,
+  ): Promise<void> {
+    const { sub, email, name } = req.user ?? {};
+
+    if (!email || !name || !sub) {
+      throw new AppError(
+        400,
+        "MISSING_TOKEN_CREDENTIALS",
+        "JWT is missing student info claims.",
+        true,
+      );
+    }
+
+    if (!req.file) {
+      throw new AppError(
+        400,
+        "IMAGE_FILE_MISSING",
+        "Please provide an image file in the request.",
+        true,
+      );
+    }
+
+    const response = await this.onBoardingService.uploadStudentOnboardingImage(sub, {
+      buffer: req.file.buffer,
+      mimetype: req.file.mimetype,
+      size: req.file.size,
+      originalName: req.file.originalname,
+    });
+
     res.status(200).json(response);
   }
 }
