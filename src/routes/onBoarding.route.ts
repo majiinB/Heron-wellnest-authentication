@@ -1,4 +1,5 @@
 import express from "express";
+import multer from "multer";
 import { StudentRepository } from "../repository/student.repository.js";
 import { OnBoardingService } from "../services/onBoarding.service.js";
 import { OnBordingController } from "../controllers/onBoarding.controller.js";
@@ -8,6 +9,11 @@ import { StudentRefreshTokenRepository } from "../repository/studentRefreshToken
 import { CollegeProgramRepository } from "../repository/collegeProgram.repository.js";
 
 const router = express.Router();
+const onboardingImageUpload = multer({
+	storage: multer.memoryStorage(),
+	limits: { fileSize: 5 * 1024 * 1024 },
+});
+
 const studentRepository : StudentRepository = new StudentRepository();
 const collegeProgramRepository = new CollegeProgramRepository();
 const studentRefreshTokenRepository : StudentRefreshTokenRepository = new StudentRefreshTokenRepository();
@@ -174,5 +180,137 @@ const onBoardingController = new OnBordingController(onBoardingService);
  *                   message: Internal server error
  */
 router.post("/student/board", heronAuthMiddleware, asyncHandler(onBoardingController.handleStudentBoarding.bind(onBoardingController)));
+
+/**
+ * @openapi
+ * /student/board/image:
+ *   post:
+ *     summary: Upload student onboarding image
+ *     description: |
+ *       Uploads an onboarding image for a student account.
+ *       - Requires a valid JWT access token with student claims.
+ *       - Requires an image file to be present in the request.
+ *       - The uploaded file is validated and stored in cloud storage.
+ *       - A storage URI and metadata are returned after a successful upload.
+ *     tags:
+ *       - Student Authentication
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       description: Image file payload for student onboarding.
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - file
+ *             properties:
+ *               file:
+ *                 type: string
+ *                 format: binary
+ *                 description: Image file (jpeg, png, gif, webp)
+ *     responses:
+ *       "200":
+ *         description: Onboarding image uploaded successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 code:
+ *                   type: string
+ *                   example: ONBOARDING_IMAGE_UPLOADED
+ *                 message:
+ *                   type: string
+ *                   example: Onboarding image uploaded for user Juan Dela Cruz.
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     gcs_uri:
+ *                       type: string
+ *                       example: gs://bucket-name/onboarding/2026/student/<uuid>/<file>.jpg
+ *                     object_path:
+ *                       type: string
+ *                       example: onboarding/2026/student/<uuid>/<file>.jpg
+ *                     content_type:
+ *                       type: string
+ *                       example: image/jpeg
+ *                     size_bytes:
+ *                       type: number
+ *                       example: 245611
+ *       "400":
+ *         description: Bad request - missing token claims, invalid image, or image file missing
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *             examples:
+ *               missingTokenClaims:
+ *                 value:
+ *                   success: false
+ *                   code: MISSING_TOKEN_CREDENTIALS
+ *                   message: JWT is missing student info claims.
+ *               missingImageFile:
+ *                 value:
+ *                   success: false
+ *                   code: IMAGE_FILE_MISSING
+ *                   message: Please provide an image file in the request.
+ *               invalidMimeType:
+ *                 value:
+ *                   success: false
+ *                   code: INVALID_IMAGE_MIMETYPE
+ *                   message: Uploaded file must be an image.
+ *               invalidImageFile:
+ *                 value:
+ *                   success: false
+ *                   code: INVALID_IMAGE_FILE
+ *                   message: Uploaded file is not a supported image format.
+ *       "404":
+ *         description: Student not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *             examples:
+ *               userNotFound:
+ *                 value:
+ *                   success: false
+ *                   code: USER_TO_BE_ONBOARDED_NOT_FOUND
+ *                   message: "User with ID: <uuid> was not found"
+ *       "413":
+ *         description: Image file too large
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *             examples:
+ *               imageTooLarge:
+ *                 value:
+ *                   success: false
+ *                   code: IMAGE_FILE_TOO_LARGE
+ *                   message: Image file must not exceed 5MB.
+ *       "500":
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *             examples:
+ *               serverError:
+ *                 value:
+ *                   success: false
+ *                   code: INTERNAL_SERVER_ERROR
+ *                   message: Internal server error
+ */
+router.post(
+	"/student/board/image",
+	heronAuthMiddleware,
+	onboardingImageUpload.single("file"),
+	asyncHandler(onBoardingController.handleStudentOnboardingImageUpload.bind(onBoardingController)),
+);
 
 export default router;

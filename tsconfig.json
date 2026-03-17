@@ -6,7 +6,7 @@
     "moduleResolution": "nodenext",
     "target": "es2022",
     "lib": ["es2022"],
-    "types": ["node", "jest"],
+    "types": ["node", "jest", "multer"],
     "sourceMap": true,
     "declaration": true,
     "declarationMap": true,
