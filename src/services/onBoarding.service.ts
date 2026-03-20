@@ -200,6 +200,15 @@ export class OnBoardingService {
       );
     }
 
+     if(user.finished_onboarding){
+      throw new AppError(
+        400,
+        "USER_ALREADY_ONBOARDED",
+        `User ${user.user_name}  is already onboarded.`,
+        true
+      )
+    }
+
     if (!imageFile?.buffer || imageFile.buffer.length === 0) {
       throw new AppError(
         400,

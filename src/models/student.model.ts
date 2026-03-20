@@ -19,4 +19,7 @@ export class Student extends User {
 
   @Column({ type: "boolean", default: false })
   finished_onboarding!: boolean;
+
+  @Column({ type: "varchar", nullable: true })
+  cor_school_year!: string;
 }
