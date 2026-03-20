@@ -9,8 +9,8 @@ import ms from "ms";
 import { env } from "../config/env.config.js";
 import type { CollegeProgram } from "../models/collegeProgram.model.js";
 import { AppError } from "../types/appError.type.js";
-import { uploadBufferToGcs } from "../config/cloudStorage.config.js";
-import { randomUUID } from "node:crypto";
+import { objectExistsInGcs, uploadBufferToGcs } from "../config/cloudStorage.config.js";
+import { createHash } from "node:crypto";
 
 type StudentOnboardingImageInput = {
   buffer: Buffer;
@@ -238,8 +238,25 @@ export class OnBoardingService {
       );
     }
 
+    const imageHash = createHash("sha256").update(imageFile.buffer).digest("hex");
     const extension = extensionFromMimeType(detectedMimeType);
-    const objectPath = `onboarding/${new Date().getFullYear()}/student/${user.user_id}/${Date.now()}-${randomUUID()}.${extension}`;
+    const objectPath = `onboarding/student/${user.user_id}/${imageHash}.${extension}`;
+
+    const imageAlreadyUploaded = await objectExistsInGcs(objectPath);
+    if (imageAlreadyUploaded) {
+      return {
+        success: true,
+        code: "ONBOARDING_IMAGE_ALREADY_UPLOADED",
+        message: `This onboarding image was already uploaded for user ${user.user_name}.`,
+        data: {
+          object_path: objectPath,
+          image_hash: imageHash,
+          content_type: detectedMimeType,
+          size_bytes: imageSize,
+          duplicate: true,
+        },
+      };
+    }
 
     const gcsUri = await uploadBufferToGcs({
       buffer: imageFile.buffer,
@@ -249,6 +266,7 @@ export class OnBoardingService {
         metadata: {
           student_id: user.user_id,
           upload_purpose: "student_onboarding_image",
+          image_hash_sha256: imageHash,
           source_file_name: imageFile.originalName ?? "unknown",
         },
       },
@@ -263,8 +281,10 @@ export class OnBoardingService {
       data: {
         gcs_uri: gcsUri,
         object_path: objectPath,
+        image_hash: imageHash,
         content_type: detectedMimeType,
         size_bytes: imageSize,
+        duplicate: false,
       },
     };
   }

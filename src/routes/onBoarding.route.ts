@@ -1,5 +1,6 @@
 import express from "express";
-import multer from "multer";
+import multer, { MulterError } from "multer";
+import type { NextFunction, Request, Response } from "express";
 import { StudentRepository } from "../repository/student.repository.js";
 import { OnBoardingService } from "../services/onBoarding.service.js";
 import { OnBordingController } from "../controllers/onBoarding.controller.js";
@@ -7,12 +8,44 @@ import { heronAuthMiddleware } from "../middlewares/heronAuth.middleware..js";
 import { asyncHandler } from "../utils/asyncHandler.util.js";
 import { StudentRefreshTokenRepository } from "../repository/studentRefreshToken.repository.js";
 import { CollegeProgramRepository } from "../repository/collegeProgram.repository.js";
+import { AppError } from "../types/appError.type.js";
 
 const router = express.Router();
 const onboardingImageUpload = multer({
 	storage: multer.memoryStorage(),
 	limits: { fileSize: 5 * 1024 * 1024 },
 });
+
+function parseOnboardingImageUpload(req: Request, res: Response, next: NextFunction): void {
+	onboardingImageUpload.single("file")(req, res, (err: unknown) => {
+		if (!err) {
+			next();
+			return;
+		}
+
+		if (err instanceof MulterError) {
+			if (err.code === "LIMIT_FILE_SIZE") {
+				next(new AppError(413, "IMAGE_FILE_TOO_LARGE", "Image file must not exceed 5MB.", true));
+				return;
+			}
+
+			if (err.code === "LIMIT_UNEXPECTED_FILE") {
+				next(new AppError(400, "UNEXPECTED_IMAGE_FIELD", "Use multipart/form-data field name 'file'.", true));
+				return;
+			}
+
+			if (err.code === "MISSING_FIELD_NAME") {
+				next(new AppError(400, "INVALID_MULTIPART_FORM_DATA", "Malformed multipart form-data: field name is missing.", true));
+				return;
+			}
+
+			next(new AppError(400, "INVALID_MULTIPART_FORM_DATA", err.message, true));
+			return;
+		}
+
+		next(err as Error);
+	});
+}
 
 const studentRepository : StudentRepository = new StudentRepository();
 const collegeProgramRepository = new CollegeProgramRepository();
@@ -309,7 +342,7 @@ router.post("/student/board", heronAuthMiddleware, asyncHandler(onBoardingContro
 router.post(
 	"/student/board/image",
 	heronAuthMiddleware,
-	onboardingImageUpload.single("file"),
+	parseOnboardingImageUpload,
 	asyncHandler(onBoardingController.handleStudentOnboardingImageUpload.bind(onBoardingController)),
 );
 

@@ -86,3 +86,10 @@ export async function getSignedUrl(objectPath: string):Promise<string> {
 
 	return url;
 }
+
+export async function objectExistsInGcs(objectPath: string): Promise<boolean> {
+	const file = getStorageBucket().file(objectPath);
+	const [exists] = await file.exists();
+
+	return exists;
+}
