@@ -37,8 +37,8 @@ export const envSchema = z.object({
   GOOGLE_EMAIL_DOMAIN: z.string().min(1, "GOOGLE_EMAIL_DOMAIN is required").default("umak.edu.ph"),
 
   // Google Cloud Storage
-  GCS_BUCKET_NAME: z.string().min(1, "GCS_BUCKET_NAME is required"),
-  GCS_PROJECT_ID: z.string().min(1, "GCS_PROJECT_ID is required"),
+  // GCS_BUCKET_NAME: z.string().min(1, "GCS_BUCKET_NAME is required"),
+  // GCS_PROJECT_ID: z.string().min(1, "GCS_PROJECT_ID is required"),
   GCS_CLIENT_EMAIL: z.string().optional(),
   GCS_PRIVATE_KEY: z.string().optional(),
   
