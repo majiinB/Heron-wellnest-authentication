@@ -11,6 +11,7 @@ import type { CollegeProgram } from "../models/collegeProgram.model.js";
 import { AppError } from "../types/appError.type.js";
 import { objectExistsInGcs, uploadBufferToGcs } from "../config/cloudStorage.config.js";
 import { createHash } from "node:crypto";
+import { publishMessage } from "../utils/pubsub.util.js";
 
 type StudentOnboardingImageInput = {
   buffer: Buffer;
@@ -200,14 +201,14 @@ export class OnBoardingService {
       );
     }
 
-    //  if(user.finished_onboarding){
-    //   throw new AppError(
-    //     400,
-    //     "USER_ALREADY_ONBOARDED",
-    //     `User ${user.user_name}  is already onboarded.`,
-    //     true
-    //   )
-    // }
+     if(user.finished_onboarding){
+      throw new AppError(
+        400,
+        "USER_ALREADY_ONBOARDED",
+        `User ${user.user_name}  is already onboarded.`,
+        true
+      )
+    }
 
     if (!imageFile?.buffer || imageFile.buffer.length === 0) {
       throw new AppError(
@@ -258,8 +259,6 @@ export class OnBoardingService {
         code: "ONBOARDING_IMAGE_ALREADY_UPLOADED",
         message: `This onboarding image was already uploaded for user ${user.user_name}.`,
         data: {
-          object_path: objectPath,
-          image_hash: imageHash,
           content_type: detectedMimeType,
           size_bytes: imageSize,
           duplicate: true,
@@ -281,16 +280,18 @@ export class OnBoardingService {
       },
     });
 
-    // TODO: Publish message to Pub/Sub here so downstream worker can process this uploaded image.
+    await publishMessage(env.PUBSUB_OCR_TOPIC, {
+      eventType: 'JOURNAL_ENTRY_UPDATED',
+      gcsUri: gcsUri,
+      userId: user.user_id,
+      timestamp: new Date().toISOString(),
+    });
 
     return {
       success: true,
       code: "ONBOARDING_IMAGE_UPLOADED",
       message: `Onboarding image uploaded for user ${user.user_name}.`,
       data: {
-        gcs_uri: gcsUri,
-        object_path: objectPath,
-        image_hash: imageHash,
         content_type: detectedMimeType,
         size_bytes: imageSize,
         duplicate: false,

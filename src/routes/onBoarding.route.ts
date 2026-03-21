@@ -223,8 +223,8 @@ router.post("/student/board", heronAuthMiddleware, asyncHandler(onBoardingContro
  *       Uploads an onboarding image for a student account.
  *       - Requires a valid JWT access token with student claims.
  *       - Requires an image file to be present in the request.
- *       - The uploaded file is validated and stored in cloud storage.
- *       - A storage URI and metadata are returned after a successful upload.
+ *       - The uploaded file is validated before it is processed.
+ *       - Returns image metadata and whether the upload is a duplicate.
  *     tags:
  *       - Student Authentication
  *     security:
@@ -259,22 +259,38 @@ router.post("/student/board", heronAuthMiddleware, asyncHandler(onBoardingContro
  *                   example: ONBOARDING_IMAGE_UPLOADED
  *                 message:
  *                   type: string
- *                   example: Onboarding image uploaded for user Juan Dela Cruz.
+ *                   example: Onboarding image uploaded for user <USER_NAME>.
  *                 data:
  *                   type: object
  *                   properties:
- *                     gcs_uri:
- *                       type: string
- *                       example: gs://bucket-name/onboarding/2026/student/<uuid>/<file>.jpg
- *                     object_path:
- *                       type: string
- *                       example: onboarding/2026/student/<uuid>/<file>.jpg
  *                     content_type:
  *                       type: string
  *                       example: image/jpeg
  *                     size_bytes:
  *                       type: number
- *                       example: 245611
+ *                       example: 237213
+ *                     duplicate:
+ *                       type: boolean
+ *                       example: false
+ *             examples:
+ *               uploaded:
+ *                 value:
+ *                   success: true
+ *                   code: ONBOARDING_IMAGE_UPLOADED
+ *                   message: Onboarding image uploaded for user <USER_NAME>.
+ *                   data:
+ *                     content_type: image/jpeg
+ *                     size_bytes: 237213
+ *                     duplicate: false
+ *               alreadyUploaded:
+ *                 value:
+ *                   success: true
+ *                   code: ONBOARDING_IMAGE_ALREADY_UPLOADED
+ *                   message: This onboarding image was already uploaded for user <USER_NAME>.
+ *                   data:
+ *                     content_type: image/jpeg
+ *                     size_bytes: 237213
+ *                     duplicate: true
  *       "400":
  *         description: Bad request - missing token claims, invalid image, or image file missing
  *         content:

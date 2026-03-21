@@ -54,6 +54,9 @@ export const envSchema = z.object({
   
   // CORS configuration
   CORS_ALLOWED_ORIGINS: z.string().min(1, "CORS_ALLOWED_ORIGINS is required"),
+
+  PUBSUB_OCR_TOPIC: z.string().min(1, "PUBSUB_OCR_TOPIC is required"),
+  PUBSUB_NOTIFICATION_TOPIC: z.string().min(1, "PUBSUB_NOTIFICATION_TOPIC is required"),
 }).superRefine((env, ctx) => {
   if (env.JWT_ALGORITHM === "HS256" && !env.JWT_SECRET) {
     ctx.addIssue({
