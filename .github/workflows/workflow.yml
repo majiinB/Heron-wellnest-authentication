@@ -33,6 +33,8 @@ jobs:
           CORS_ALLOWED_ORIGINS: http://localhost:300
           PUBSUB_NOTIFICATION_TOPIC: test-topic
           PUBSUB_OCR_TOPIC: test-ocr-topic
+          GCS_BUCKET_NAME: test-bucket
+          GCS_PROJECT_ID: test-project
 
   build-and-deploy:
     if: github.ref == 'refs/heads/main'
@@ -64,6 +66,8 @@ jobs:
           CORS_ALLOWED_ORIGINS: http://localhost:300
           PUBSUB_NOTIFICATION_TOPIC: test-topic
           PUBSUB_OCR_TOPIC: test-ocr-topic
+          GCS_BUCKET_NAME: test-bucket
+          GCS_PROJECT_ID: test-project
 
       - uses: google-github-actions/auth@v1
         with:
