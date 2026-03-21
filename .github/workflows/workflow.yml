@@ -87,6 +87,27 @@ jobs:
       # Push Docker image
       - run: docker push ${{ env.REGION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.ARTIFACT_REGISTRY_REPO}}/${{ env.SERVICE_NAME }}:latest
 
+      # Create environment variables file for Cloud Run
+      - run: |
+          cat > .env.prod.yaml << EOF
+          NODE_ENV: ${{ vars.NODE_ENV }}
+          DB_USER: ${{ vars.DB_USER }}
+          DB_NAME: ${{ vars.DB_NAME }}
+          DB_HOST: ${{ vars.DB_HOST }}
+          DB_PORT: ${{ vars.DB_PORT }}
+          GOOGLE_EMAIL_DOMAIN: ${{ vars.GOOGLE_EMAIL_DOMAIN }}
+          JWT_ACCESS_TOKEN_TTL: ${{ vars.JWT_ACCESS_TOKEN_TTL }}
+          JWT_REFRESH_TOKEN_TTL: ${{ vars.JWT_REFRESH_TOKEN_TTL }}
+          JWT_ISSUER: ${{ vars.JWT_ISSUER }}
+          JWT_AUDIENCE: ${{ vars.JWT_AUDIENCE }}
+          JWT_ALGORITHM: ${{ vars.JWT_ALGORITHM }}
+          CORS_ALLOWED_ORIGINS: ${{ vars.CORS_ALLOWED_ORIGINS }}
+          PUBSUB_NOTIFICATION_TOPIC: ${{ vars.PUBSUB_NOTIFICATION_TOPIC }}
+          PUBSUB_OCR_TOPIC: ${{ vars.PUBSUB_OCR_TOPIC }}
+          GCS_PROJECT_ID: ${{ vars.GCS_PROJECT_ID }}
+          GCS_BUCKET_NAME: ${{ vars.GCS_BUCKET_NAME }}
+          EOF
+
       # Deploy to Cloud Run
       - run: |
           gcloud run deploy ${{ env.SERVICE_NAME }} \
@@ -94,10 +115,11 @@ jobs:
             --region ${{ env.REGION }} \
             --platform managed \
             --allow-unauthenticated \
-            --set-env-vars NODE_ENV='${{ vars.NODE_ENV }}',DB_USER='${{ vars.DB_USER }}',DB_NAME='${{ vars.DB_NAME }}',DB_HOST='${{ vars.DB_HOST }}',DB_PORT='${{ vars.DB_PORT }}',GOOGLE_EMAIL_DOMAIN='${{ vars.GOOGLE_EMAIL_DOMAIN }}',JWT_ACCESS_TOKEN_TTL='${{ vars.JWT_ACCESS_TOKEN_TTL }}',JWT_REFRESH_TOKEN_TTL='${{ vars.JWT_REFRESH_TOKEN_TTL }}',JWT_ISSUER='${{ vars.JWT_ISSUER }}',JWT_AUDIENCE='${{ vars.JWT_AUDIENCE }}',JWT_ALGORITHM='${{ vars.JWT_ALGORITHM }}',CORS_ALLOWED_ORIGINS='${{ vars.CORS_ALLOWED_ORIGINS }}',PUBSUB_NOTIFICATION_TOPIC='${{ vars.PUBSUB_NOTIFICATION_TOPIC }}',PUBSUB_OCR_TOPIC='${{ vars.PUBSUB_OCR_TOPIC }}',GCS_PROJECT_ID='${{ vars.GCS_PROJECT_ID }}',GCS_BUCKET_NAME='${{ vars.GCS_BUCKET_NAME }}' \
+            --env-vars-file .env.prod.yaml \
             --set-secrets DB_PASSWORD=DB_PASSWORD:latest,GOOGLE_CLIENT_ID=GOOGLE_CLIENT_ID:latest,JWT_SECRET=JWT_SECRET:latest,GCS_CLIENT_EMAIL=GCS_CLIENT_EMAIL:latest,GCS_PRIVATE_KEY=GCS_PRIVATE_KEY:latest \
             --timeout=300 \
             --concurrency=20 \
             --min-instances=0 \
             --max-instances=3 \
             --cpu-boost
+
