@@ -116,7 +116,7 @@ jobs:
             --platform managed \
             --allow-unauthenticated \
             --env-vars-file .env.prod.yaml \
-            --set-secrets DB_PASSWORD=DB_PASSWORD:latest,GOOGLE_CLIENT_ID=GOOGLE_CLIENT_ID:latest,JWT_SECRET=JWT_SECRET:latest,GCS_CLIENT_EMAIL=GCS_CLIENT_EMAIL:latest,GCS_PRIVATE_KEY=GCS_PRIVATE_KEY:latest \
+            --set-secrets DB_PASSWORD=DB_PASSWORD:latest,GOOGLE_CLIENT_ID=GOOGLE_CLIENT_ID:latest,JWT_SECRET=JWT_SECRET:latest \
             --timeout=300 \
             --concurrency=20 \
             --min-instances=0 \

@@ -16,17 +16,8 @@ type UploadFromStreamInput = {
 	metadata?: UploadOptions["metadata"];
 };
 
-const credentials =
-	env.GCS_CLIENT_EMAIL && env.GCS_PRIVATE_KEY
-		? {
-				client_email: env.GCS_CLIENT_EMAIL,
-				private_key: env.GCS_PRIVATE_KEY.replace(/\\n/g, "\n"),
-			}
-		: undefined;
-
 export const storage = new Storage({
 	projectId: env.GCS_PROJECT_ID,
-	credentials,
 });
 
 export function getStorageBucketName(): string {
