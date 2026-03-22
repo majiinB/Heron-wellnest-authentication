@@ -173,4 +173,43 @@ export class LoginController {
     const response = await this.loginService.unifiedLogin(email, password);
     res.status(200).json(response);
   }
+
+   /**
+   * Handle a guest login request authenticated via Google.
+   *
+   * Extracts `email` and `name` from `req.user`, validates them, and if present:
+   * - Constructs a `Guest` entity with `email` and `user_name`.
+   * - Delegates authentication/creation to `this.loginService.guestLogin`.
+   * - Sends the returned payload as a JSON response with HTTP status 200.
+   *
+   * If `email` or `name` are missing on `req.user`, this method throws an `AppError`
+   * with status 400 and code "MISSING_GOOGLE_CREDENTIALS".
+   *
+   * @param req - AuthenticatedRequest expected to contain a populated `user` object with `email` and `name`.
+   * @param res - Express Response used to send the HTTP 200 JSON response.
+   * @param _next - Express NextFunction (unused) provided for middleware compatibility.
+   * @returns A Promise that resolves when the response has been sent.
+   * @throws {AppError} When Google user info (`email` or `name`) is missing (HTTP 400, code "MISSING_GOOGLE_CREDENTIALS").
+   * @throws {Error} Any error thrown or rejected by `loginService.studentLogin` will propagate to the caller.
+   * @remarks This method performs side effects (sending the HTTP response) and relies on `this.loginService` being available.
+   */
+  public async handleGuestLogin(req: AuthenticatedRequest, res: Response, _next: NextFunction): Promise<void> {
+    const { email, name } = req.user ?? {};
+
+    if (!email || !name) {
+      throw new AppError(
+        400,
+        "MISSING_GOOGLE_CREDENTIALS",
+        "Missing Google user info.",
+        true
+      ) // Stop execution if missing
+    }
+
+    const googleUser = new Student();
+    googleUser.email = email;
+    googleUser.user_name = name;
+
+    const response = await this.loginService.GuestLogin(googleUser);
+    res.status(200).json(response);
+  }
 }

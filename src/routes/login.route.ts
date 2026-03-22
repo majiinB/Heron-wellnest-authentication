@@ -3,7 +3,7 @@ import { asyncHandler } from "../utils/asyncHandler.util.js";
 import { StudentRepository } from "../repository/student.repository.js";
 import { LoginService } from "../services/login.service.js";
 import { LoginController } from "../controllers/login.controller.js";
-import { googleAuthMiddleware } from "../middlewares/googleAuth.middleware.js";
+import { googleAuthMiddleware, googleAuthMiddlewareForGuests } from "../middlewares/googleAuth.middleware.js";
 import { StudentRefreshTokenRepository } from "../repository/studentRefreshToken.repository.js";
 import { AdminRepository } from "../repository/admin.repository.js";
 import { AdminRefreshTokenRepository } from "../repository/adminRefreshToken.repository.js";
@@ -501,5 +501,7 @@ router.post("/counselor/login", asyncHandler(loginController.handleCounselorLogi
  *                   message: Internal server error
  */
 router.post("/login", asyncHandler(loginController.handleUnifiedLogin.bind(loginController)));
+
+router.post("/guest/login", googleAuthMiddlewareForGuests, asyncHandler(loginController.handleGuestLogin.bind(loginController)));
 
 export default router;
