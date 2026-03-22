@@ -502,6 +502,127 @@ router.post("/counselor/login", asyncHandler(loginController.handleCounselorLogi
  */
 router.post("/login", asyncHandler(loginController.handleUnifiedLogin.bind(loginController)));
 
+/**
+ * @openapi
+ * /guest/login:
+ *   post:
+ *     summary: Guest login with Google authentication
+ *     description: |
+ *       Handles guest login using Google authentication for IT testers.  
+ *       - Accepts any valid Google account (no domain restriction).
+ *       - If the guest does not exist, a new account is automatically created.  
+ *       - Guest accounts are marked with "GUEST: " prefix in username and year_level set to "Guest".
+ *       - Guest is registered as a student role for full app access.
+ *       - Any existing refresh token for the guest will be invalidated and replaced.  
+ *       - Returns a new JWT access token and refresh token pair for secure session management.
+ *       - **No request body needed** - user info is extracted from Google OAuth token in Authorization header.
+ *     tags:
+ *       - Guest Authentication
+ *     security: 
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: header
+ *         name: Authorization
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Google OAuth token (Bearer token)
+ *         example: Bearer ya29.a0AfH6SMBx...
+ *     responses:
+ *       "200":
+ *         description: Guest login successful
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 code:
+ *                   type: string
+ *                   example: LOGIN_SUCCESS
+ *                 message:
+ *                   type: string
+ *                   example: Student login successful
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     access_token:
+ *                       type: string
+ *                       description: JWT access token for authenticated requests
+ *                       example: eyJhbGciOiJIUzI1NiIsInR5cCI6...
+ *                     refresh_token:
+ *                       type: string
+ *                       description: Refresh token for session management
+ *                       example: eyJhbGciOiJIUzI1NiIsInR5cCI6...
+ *                     is_onboarded:
+ *                       type: boolean
+ *                       example: true
+ *             examples:
+ *               guestLoginSuccess:
+ *                 value:
+ *                   success: true
+ *                   code: LOGIN_SUCCESS
+ *                   message: Student login successful
+ *                   data:
+ *                     access_token: "eyJhbGciOiJIUzI1NiIsInR5cCI6..."
+ *                     refresh_token: "eyJhbGciOiJIUzI1NiIsInR5cCI6..."
+ *                     is_onboarded: true
+ *       "400":
+ *         description: Missing Google credentials
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *             examples:
+ *               missingGoogleCredentials:
+ *                 value:
+ *                   success: false
+ *                   code: MISSING_GOOGLE_CREDENTIALS
+ *                   message: Missing Google user info.
+ *       "401":
+ *         description: Unauthorized - Invalid or expired Google token
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *             examples:
+ *               tokenTimeError:
+ *                 value:
+ *                   success: false
+ *                   code: AUTH_TOKEN_TIME_ERROR
+ *                   message: Google token rejected due to time mismatch. Please check your device or server clock.
+ *               noTokenError:
+ *                 value:
+ *                   success: false
+ *                   code: AUTH_NO_TOKEN
+ *                   message: No token provided.
+ *       "403":
+ *         description: Forbidden - Email not verified
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *             examples:
+ *               emailNotVerified:
+ *                 value:
+ *                   success: false
+ *                   code: AUTH_EMAIL_NOT_VERIFIED
+ *                   message: Email not verified
+ *       "500":
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *             examples:
+ *               serverError:
+ *                 value:
+ *                   success: false
+ *                   code: INTERNAL_SERVER_ERROR
+ *                   message: Internal server error
+ */
 router.post("/guest/login", googleAuthMiddlewareForGuests, asyncHandler(loginController.handleGuestLogin.bind(loginController)));
 
 export default router;

@@ -63,41 +63,43 @@ export class LoginService {
       newUser.college_program = null;
       newUser.finished_onboarding = false;
 
-      user = await this.userRepository.save(newUser);
+      await this.userRepository.save(newUser);
     }
+
+    user = await this.userRepository.findByEmail(googleUser.email); // Refetch to get user_id and other fields
 
     // User exists or has been created, generate tokens
     const payload: AccessTokenClaims = {
-      sub: user.user_id,
-      role: user.finished_onboarding ? "student" : "student_pending",
-      email: user.email,
-      name: user.user_name,
-      is_onboarded: user.finished_onboarding,
-      college_program: user.college_program?.program_name ?? null,
-      college_department: user.college_program?.college_department_id?.department_name ?? null,
+      sub: user!.user_id,
+      role: user!.finished_onboarding ? "student" : "student_pending",
+      email: user!.email,
+      name: user!.user_name,
+      is_onboarded: user!.finished_onboarding,
+      college_program: user!.college_program?.program_name ?? null,
+      college_department: user!.college_program?.college_department_id?.department_name ?? null,
     }
 
     // Generate JWT tokens
     const accessToken: string = await signAccessToken(payload);
-    const refreshToken: string = await signRefreshToken(user.user_id);
+    const refreshToken: string = await signRefreshToken(user!.user_id);
 
     // Save refresh token to database
     const ttlString: ms.StringValue = env.JWT_REFRESH_TOKEN_TTL as ms.StringValue || "7d"; 
     const ttlMs = ms(ttlString);
     const expiresAt = new Date(Date.now() + ttlMs);
-    await this.studentRefreshTokenRepository.upsert(user.user_id, refreshToken, expiresAt);
+    await this.studentRefreshTokenRepository.upsert(user!.user_id, refreshToken, expiresAt);
 
     // Prepare response
     const response: ApiResponse = {
       success: true,
-      code: user.finished_onboarding ? "LOGIN_SUCCESS" : "ONBOARDING_REQUIRED",
-      message: user.finished_onboarding ? 
+      code: user!.finished_onboarding ? "LOGIN_SUCCESS" : "ONBOARDING_REQUIRED",
+      message: user!.finished_onboarding ? 
       "Student login successful" : 
       "Onboarding required to complete your profile",
       data: {
         access_token: accessToken,
         refresh_token: refreshToken,
-        is_onboarded: user.finished_onboarding,
+        is_onboarded: user!.finished_onboarding,
       }
     }
 
@@ -279,7 +281,7 @@ export class LoginService {
       name: user.user_name,
       is_onboarded: user.finished_onboarding,
       college_program: user.college_program?.program_name ?? null,
-      college_department: user.college_program?.college_department_id?.department_name ?? null,
+      college_department: "COLLEGE OF COMPUTING AND INFORMATION SCIENCES",
     }
 
     // Generate JWT tokens
