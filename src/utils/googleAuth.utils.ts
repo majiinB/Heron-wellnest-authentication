@@ -173,6 +173,16 @@ export async function verifyGoogleTokenForGuests(token: string) : Promise<TokenP
       );
     }
 
+    const domain = payload['hd'];
+    if (domain == env.GOOGLE_EMAIL_DOMAIN) {
+      throw new AppError(
+        403, 
+        "AUTH_STUDENT_DOMAIN", 
+        `Unauthorized domain: ${domain}, Umak email is a university email please proceed to login instead`, 
+        true
+      );
+    }
+
     return payload;
   } catch (err) {
     if (err instanceof AppError) {
