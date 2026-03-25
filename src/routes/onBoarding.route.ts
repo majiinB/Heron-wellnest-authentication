@@ -11,13 +11,13 @@ import { CollegeProgramRepository } from "../repository/collegeProgram.repositor
 import { AppError } from "../types/appError.type.js";
 
 const router = express.Router();
-const onboardingImageUpload = multer({
+const onboardingPdfUpload = multer({
 	storage: multer.memoryStorage(),
 	limits: { fileSize: 5 * 1024 * 1024 },
 });
 
-function parseOnboardingImageUpload(req: Request, res: Response, next: NextFunction): void {
-	onboardingImageUpload.single("file")(req, res, (err: unknown) => {
+function parseOnboardingPdfUpload(req: Request, res: Response, next: NextFunction): void {
+	onboardingPdfUpload.single("file")(req, res, (err: unknown) => {
 		if (!err) {
 			next();
 			return;
@@ -25,12 +25,12 @@ function parseOnboardingImageUpload(req: Request, res: Response, next: NextFunct
 
 		if (err instanceof MulterError) {
 			if (err.code === "LIMIT_FILE_SIZE") {
-				next(new AppError(413, "IMAGE_FILE_TOO_LARGE", "Image file must not exceed 5MB.", true));
+				next(new AppError(413, "PDF_FILE_TOO_LARGE", "PDF file must not exceed 5MB.", true));
 				return;
 			}
 
 			if (err.code === "LIMIT_UNEXPECTED_FILE") {
-				next(new AppError(400, "UNEXPECTED_IMAGE_FIELD", "Use multipart/form-data field name 'file'.", true));
+				next(new AppError(400, "UNEXPECTED_PDF_FIELD", "Use multipart/form-data field name 'file'.", true));
 				return;
 			}
 
@@ -216,22 +216,22 @@ router.post("/student/board", heronAuthMiddleware, asyncHandler(onBoardingContro
 
 /**
  * @openapi
- * /student/board/image:
+ * /student/board/pdf:
  *   post:
- *     summary: Upload student onboarding image
+ *     summary: Upload student onboarding PDF
  *     description: |
- *       Uploads an onboarding image for a student account.
+ *       Uploads an onboarding PDF for a student account.
  *       - Requires a valid JWT access token with student claims.
- *       - Requires an image file to be present in the request.
+ *       - Requires a PDF file to be present in the request.
  *       - The uploaded file is validated before it is processed.
- *       - Returns image metadata and whether the upload is a duplicate.
+ *       - Returns file metadata and whether the upload is a duplicate.
  *     tags:
  *       - Student Authentication
  *     security:
  *       - bearerAuth: []
  *     requestBody:
  *       required: true
- *       description: Image file payload for student onboarding.
+ *       description: PDF file payload for student onboarding.
  *       content:
  *         multipart/form-data:
  *           schema:
@@ -242,10 +242,10 @@ router.post("/student/board", heronAuthMiddleware, asyncHandler(onBoardingContro
  *               file:
  *                 type: string
  *                 format: binary
- *                 description: Image file (jpeg, png, gif, webp)
+ *                 description: PDF file
  *     responses:
  *       "200":
- *         description: Onboarding image uploaded successfully
+ *         description: Onboarding PDF uploaded successfully
  *         content:
  *           application/json:
  *             schema:
@@ -256,16 +256,16 @@ router.post("/student/board", heronAuthMiddleware, asyncHandler(onBoardingContro
  *                   example: true
  *                 code:
  *                   type: string
- *                   example: ONBOARDING_IMAGE_UPLOADED
+ *                   example: ONBOARDING_PDF_UPLOADED
  *                 message:
  *                   type: string
- *                   example: Onboarding image uploaded for user <USER_NAME>.
+ *                   example: Onboarding PDF uploaded for user <USER_NAME>.
  *                 data:
  *                   type: object
  *                   properties:
  *                     content_type:
  *                       type: string
- *                       example: image/jpeg
+ *                       example: application/pdf
  *                     size_bytes:
  *                       type: number
  *                       example: 237213
@@ -276,23 +276,23 @@ router.post("/student/board", heronAuthMiddleware, asyncHandler(onBoardingContro
  *               uploaded:
  *                 value:
  *                   success: true
- *                   code: ONBOARDING_IMAGE_UPLOADED
- *                   message: Onboarding image uploaded for user <USER_NAME>.
+ *                   code: ONBOARDING_PDF_UPLOADED
+ *                   message: Onboarding PDF uploaded for user <USER_NAME>.
  *                   data:
- *                     content_type: image/jpeg
+ *                     content_type: application/pdf
  *                     size_bytes: 237213
  *                     duplicate: false
  *               alreadyUploaded:
  *                 value:
  *                   success: true
- *                   code: ONBOARDING_IMAGE_ALREADY_UPLOADED
- *                   message: This onboarding image was already uploaded for user <USER_NAME>.
+ *                   code: ONBOARDING_PDF_ALREADY_UPLOADED
+ *                   message: This onboarding PDF was already uploaded for user <USER_NAME>.
  *                   data:
- *                     content_type: image/jpeg
+ *                     content_type: application/pdf
  *                     size_bytes: 237213
  *                     duplicate: true
  *       "400":
- *         description: Bad request - missing token claims, invalid image, or image file missing
+ *         description: Bad request - missing token claims, invalid PDF, or PDF file missing
  *         content:
  *           application/json:
  *             schema:
@@ -303,21 +303,21 @@ router.post("/student/board", heronAuthMiddleware, asyncHandler(onBoardingContro
  *                   success: false
  *                   code: MISSING_TOKEN_CREDENTIALS
  *                   message: JWT is missing student info claims.
- *               missingImageFile:
+ *               missingPdfFile:
  *                 value:
  *                   success: false
- *                   code: IMAGE_FILE_MISSING
- *                   message: Please provide an image file in the request.
+ *                   code: PDF_FILE_MISSING
+ *                   message: Please provide a PDF file in the request.
  *               invalidMimeType:
  *                 value:
  *                   success: false
- *                   code: INVALID_IMAGE_MIMETYPE
- *                   message: Uploaded file must be an image.
- *               invalidImageFile:
+ *                   code: INVALID_PDF_MIMETYPE
+ *                   message: Uploaded file must be a PDF.
+ *               invalidPdfFile:
  *                 value:
  *                   success: false
- *                   code: INVALID_IMAGE_FILE
- *                   message: Uploaded file is not a supported image format.
+ *                   code: INVALID_PDF_FILE
+ *                   message: Uploaded file is not a valid PDF format.
  *       "404":
  *         description: Student not found
  *         content:
@@ -331,17 +331,17 @@ router.post("/student/board", heronAuthMiddleware, asyncHandler(onBoardingContro
  *                   code: USER_TO_BE_ONBOARDED_NOT_FOUND
  *                   message: "User with ID: <uuid> was not found"
  *       "413":
- *         description: Image file too large
+ *         description: PDF file too large
  *         content:
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/ErrorResponse'
  *             examples:
- *               imageTooLarge:
+ *               pdfTooLarge:
  *                 value:
  *                   success: false
- *                   code: IMAGE_FILE_TOO_LARGE
- *                   message: Image file must not exceed 5MB.
+ *                   code: PDF_FILE_TOO_LARGE
+ *                   message: PDF file must not exceed 5MB.
  *       "500":
  *         description: Internal server error
  *         content:
@@ -356,10 +356,10 @@ router.post("/student/board", heronAuthMiddleware, asyncHandler(onBoardingContro
  *                   message: Internal server error
  */
 router.post(
-	"/student/board/image",
+	"/student/board/pdf",
 	heronAuthMiddleware,
-	parseOnboardingImageUpload,
-	asyncHandler(onBoardingController.handleStudentOnboardingImageUpload.bind(onBoardingController)),
+	parseOnboardingPdfUpload,
+	asyncHandler(onBoardingController.handleStudentOnboardingPdfUpload.bind(onBoardingController)),
 );
 
 export default router;

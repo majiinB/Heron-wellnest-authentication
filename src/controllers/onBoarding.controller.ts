@@ -3,7 +3,7 @@ import type { AuthenticatedRequest } from "../interface/authRequest.interface.js
 import type { OnBoardingService } from "../services/onBoarding.service.js";
 import { AppError } from "../types/appError.type.js";
 
-type UploadedImageFile = {
+type UploadedPdfFile = {
   buffer: Buffer;
   mimetype: string;
   size: number;
@@ -11,7 +11,7 @@ type UploadedImageFile = {
 };
 
 type AuthenticatedRequestWithFile = AuthenticatedRequest & {
-  file?: UploadedImageFile;
+  file?: UploadedPdfFile;
 };
 
 /**
@@ -60,7 +60,7 @@ export class OnBordingController {
     res.status(200).json(response);
   }
 
-  public async handleStudentOnboardingImageUpload(
+  public async handleStudentOnboardingPdfUpload(
     req: AuthenticatedRequestWithFile,
     res: Response,
     _next: NextFunction,
@@ -79,13 +79,13 @@ export class OnBordingController {
     if (!req.file) {
       throw new AppError(
         400,
-        "IMAGE_FILE_MISSING",
-        "Please provide an image file in the request.",
+        "PDF_FILE_MISSING",
+        "Please provide a PDF file in the request.",
         true,
       );
     }
 
-    const response = await this.onBoardingService.uploadStudentOnboardingImage(sub, {
+    const response = await this.onBoardingService.uploadStudentOnboardingPdf(sub, {
       buffer: req.file.buffer,
       mimetype: req.file.mimetype,
       size: req.file.size,
