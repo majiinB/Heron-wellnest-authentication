@@ -19,7 +19,7 @@ export class AdminRepository {
   private repo = AppDataSource.getRepository(Admin);
 
   async findByEmail(email: string): Promise<Admin | null> {
-    return this.repo.findOne({ where: { email } });
+    return this.repo.findOne({ where: { email, is_deleted: false } });
   }
 
   async save(user: User): Promise<Admin> {
@@ -31,7 +31,7 @@ export class AdminRepository {
   }
 
   async findById(user_id: string): Promise<Admin | null> {
-    return this.repo.findOne({ where: { user_id } });
+    return this.repo.findOne({ where: { user_id, is_deleted: false } });
   }
 
   async delete(user: Admin): Promise<void> {

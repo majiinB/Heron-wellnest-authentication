@@ -20,7 +20,7 @@ export class CounselorRepository {
 
   async findByEmail(email: string): Promise<Counselor | null> {
     return this.repo.findOne({ 
-      where: { email },
+      where: { email, is_deleted: false },
       relations: ["college_department"] // Ensure department relation is loaded
     });
   }
@@ -34,7 +34,7 @@ export class CounselorRepository {
   }
 
   async findById(user_id: string): Promise<Counselor | null> {
-    return this.repo.findOne({ where: { user_id } });
+    return this.repo.findOne({ where: { user_id, is_deleted: false } });
   }
 
   async delete(user: Counselor): Promise<void> {
